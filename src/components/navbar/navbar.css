@@ -1,0 +1,54 @@
+.navbar {
+    background-color: rgb(247, 247, 247);
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    position: static;
+}
+
+.divider-icon {
+    border-left: 2px solid;
+    height: 30px;
+    margin-left: 5px;
+    padding: 0px;
+    color: rgb(134, 134, 134);
+}
+
+.navbar-icons {
+    margin-left: 4px;
+    height: 20px;
+    width: 30px;
+    color: rgb(134, 134, 134);
+}
+
+.nav-buttons {
+    margin-left: 49%;
+    display: flex;
+
+}
+
+#Save-button {
+    background-color: rgb(126, 167, 126);
+    width: 80px;
+}
+
+.buttons{
+    display: flex;
+    margin-top: 2px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5%;
+    border: 5px;
+    margin-right: 2px;
+    font-size: 13px;
+    height: 35px;
+    color: white;
+   
+}
+
+#packages-button {
+    background-color: rgb(24, 45, 53);
+     width: 100px;  
+}
