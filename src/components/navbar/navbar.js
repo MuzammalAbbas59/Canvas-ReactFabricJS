@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import canvasimage from './canvas.jpg';
 import { fabric } from 'fabric';
 import './navbar.css'
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
@@ -19,31 +18,156 @@ import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import html2canvas from "html2canvas";
 import jsPdf from "jspdf";
-
+import { useMount } from './custom-hooks.js'
 
 
 function Navbar() {
-  let [canvas, setCanvas] = useState('');
-  useEffect(() => {
+  var count=0;
+  var stack = [];
+  var redo_stack = [];
+ var flag=false;
+  let [canvas, setCanvas] = useState(null);
+  useMount(() => {
     setCanvas(initCanvas());
-  }, []);
-
-  useEffect(() => {
-    if (canvas) {
-    }
-  }, [canvas])
+  });
 
   const initCanvas = () => (
     new fabric.Canvas('mycanvas', {
       height: 1200,
       width: 800,
-      backgroundColor: 'pink',
+      backgroundColor: "lightgray",
       selection: true,
 
     })
   );
+  function updateStack() {
+    flag=false;
+    if (!flag){
+      redo_stack=[];
+      // count=0;
+    }
+    console.log("canvas", canvas);
+    var json = canvas.toJSON();
+    console.log('stack updated');
+    stack.push(json);
+    console.log("stack: ", stack)
+  }
+
+  function undo() {
+    flag=true;
+    console.log("start undo", stack);
+      // debugger
+    if (count>=3 || count > stack.length){
+      alert("You cannot undo more");
+    }
+    else {
+     var top = stack.pop();
+    // stack.push(top);
+     redo_stack.push(top);
+     console.log("redo",redo_stack);
+    // debugger
+    if (stack.at(-1)){
+    canvas.loadFromJSON(stack.at(-1), canvas.requestRenderAll.bind(canvas));
+
+    }
+    else {
+      // debugger;
+      canvas.loadFromJSON(canvas, canvas.requestRenderAll.bind(canvas));
+    
+    }
+    count++;
+    // debugger
+    }
+
+  }
+
+  function redo() {
+     
+    if (count>0 && flag ){
+    console.log("redo_stack", redo_stack);
+    canvas.loadFromJSON(redo_stack.pop(), canvas.requestRenderAll.bind(canvas));
+    count--;
+    }
+    else {
+      alert("you cannot do this");
+    }
+  }
+
+  function zoomOut() {
+    console.log("start zoom", stack);
+    canvas.isDrawingMode = false;
+    if (canvas.getZoom().toFixed(5) <= 0.33) {
+      alert("cannot zoomout more")
+      return;
+    }
+    canvas.setZoom(canvas.getZoom() / 1.1);
+    canvas.setHeight(canvas.getHeight() / 1.1);
+    canvas.setWidth(canvas.getWidth() / 1.1);
+  }
+
+  async function deletecanvas() {
+    alert("Deleting Canvas elements");
+    canvas.remove.apply(canvas, canvas.getObjects().concat());
+    await updateStack();
+
+  }
+  if (canvas) {
+    var isObjectMoving  = false;
+    canvas.on('object:moving', function (event) {
+      console.log("object moving");
+       isObjectMoving = true;
+    });
+    
+    canvas.on('mouse:up', function (event) {
+      if (isObjectMoving){
+        console.log("object stopped");
+        isObjectMoving = false;
+       updateStack();       
+      } 
+    });
+
+  }
+
+  async function pdf() {
+    await updateStack();
+    canvas.isDrawingMode = false;
+
+    alert('Exporting to print/pdf');
+    const domElement = document.getElementById("mycanvas");
+    html2canvas(domElement, {
+    }).then(canvas => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPdf();
+      pdf.addImage(imgData, "JPEG", 0, 0);
+      pdf.save(`Muzammal.pdf`);
+    });
+  }
+
+  async function drawing() {
+
+    canvas.isDrawingMode = true;
+    canvas.on('mouse:up', function (event) {
+        console.log("drawing stopped");
+         updateStack();       
+    });
+
+  }
 
 
+
+  function zoomIn() {
+    canvas.isDrawingMode = false;
+    if (canvas.getZoom().toFixed(5) > 2) {
+      alert("cannot zoomIN more")
+      return;
+    }
+    canvas.setZoom(canvas.getZoom() * 1.1);
+    canvas.setHeight(canvas.getHeight() * 1.1);
+    canvas.setWidth(canvas.getWidth() * 1.1);
+  }
+
+  async function createcircle() {
+    canvas.isDrawingMode = false;
     var circle = new fabric.Circle({
       radius: 15,
       fill: 'blue',
@@ -53,9 +177,18 @@ function Navbar() {
       selectable: true,
       hasControls: true
     });
-    circle.hasRotatingPoint = true;
+    canvas.add(circle);
+    await updateStack();
+  }
 
+  async function eraser() {
+    canvas.isDrawingMode = false;
+    canvas.remove(canvas.getActiveObject());
+    await updateStack();
 
+  }
+  async function createrectangle() {
+    canvas.isDrawingMode = false;
     var rectangle = new fabric.Rect({
       width: 200,
       selection: true,
@@ -64,14 +197,21 @@ function Navbar() {
       stroke: 'green',
       strokeWidth: 3
     });
+    canvas.add(rectangle);
+    await updateStack();
+  }
+  async function createline() {
 
-
+    canvas.isDrawingMode = false;
     var line = new fabric.Line([30, 10, 20, 100], {
       stroke: 'blue',
       width: 10
     });
-
-
+    canvas.add(line);
+    await updateStack();
+  }
+  async function createtext() {
+    canvas.isDrawingMode = false;
     let text = new fabric.Textbox('TEXT',
       {
         width: 450,
@@ -79,79 +219,12 @@ function Navbar() {
         fill: 'white'
       });
 
-    function zoomOut() {
-      if (canvas.getZoom().toFixed(5) <= 0.33) {
-        alert("cannot zoomout more")
+    canvas.add(text);
+    await updateStack();
 
-        return;
-      }
-      canvas.setZoom(canvas.getZoom() / 1.1);
-      canvas.setHeight(canvas.getHeight() / 1.1);
-      canvas.setWidth(canvas.getWidth() / 1.1);
-    }
+  }
 
-    function deletecanvas() {
-      alert("Deleting Canvas elements");
-      setCanvas(initCanvas);
-    }
 
-    function pdf() {
-      alert('Exporting to print/pdf');
-      const domElement = document.getElementById("mycanvas");
-      html2canvas(domElement, {
-      }).then(canvas => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPdf();
-        pdf.addImage(imgData, "JPEG", 0, 0);
-        pdf.save(`${new Date().toISOString()}.pdf`);
-      });
-    }
-
-    function drawing() {
-
-      console.log("inside function", canvas);
-    }
-
-    console.log("outside function: ", canvas);
-
-    function zoomIn() {
-
-      if (canvas.getZoom().toFixed(5) > 2) {
-        alert("cannot zoomIN more")
-        return;
-      }
-      canvas.setZoom(canvas.getZoom() * 1.1);
-      canvas.setHeight(canvas.getHeight() * 1.1);
-      canvas.setWidth(canvas.getWidth() * 1.1);
-    }
-
-    function createcircle() {
-      canvas.add(circle);
-      canvas.renderAll();
-    }
-    function createrectangle() {
-      rectangle.hasControls = true;
-      canvas.add(rectangle);
-      canvas.renderAll();
-    }
-    function createline() {
-      canvas.add(line);
-
-    }
-    function createtext() {
-      canvas.add(text);
-    }
-
-    const addRect = canvi => {
-      const rect = new fabric.Rect({
-        height: 280,
-        width: 200,
-        fill: 'yellow'
-      });
-      canvi.add(rect);
-      canvi.renderAll();
-    }
-  
   return (
     <div>
       <div className='Container navbar '>
@@ -163,11 +236,11 @@ function Navbar() {
         </div>
         <div className="divider-icon">
         </div>
-        <div className="navbar-icons" id="undo">
+        <div onClick={undo} className="navbar-icons" id="undo">
           <UndoIcon />
         </div>
 
-        <div className="navbar-icons" id="redo">
+        <div onClick={redo} className="navbar-icons" id="redo">
           <RedoIcon />
         </div>
         <div className="divider-icon"> </div>
@@ -191,7 +264,7 @@ function Navbar() {
         <div onClick={drawing} className="navbar-icons" id="pen">
           <CreateIcon />
         </div>
-        <div className="navbar-icons" id="erase">
+        <div onClick={eraser} className="navbar-icons" id="erase">
           < RemoveCircleOutlineIcon />
         </div>
 
