@@ -19,16 +19,20 @@ import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import html2canvas from "html2canvas";
 import jsPdf from "jspdf";
 import { useMount } from './custom-hooks.js'
+import Popper from './popper';
 
 
 function Navbar() {
-  var count=0;
-  var stack = [];
-  var redo_stack = [];
- var flag=false;
+  var count = 0;
+  let [stack,setStack] = useState([]);
+  var flag = false;
   let [canvas, setCanvas] = useState(null);
+  let [selected, setselected] = useState(null);
+  const [popperstate, setpopperstate] = useState(false);
+
   useMount(() => {
     setCanvas(initCanvas());
+
   });
 
   const initCanvas = () => (
@@ -36,61 +40,78 @@ function Navbar() {
       height: 1200,
       width: 800,
       backgroundColor: "lightgray",
-      selection: true,
+      // selection: true,
 
     })
   );
+
   function updateStack() {
-    flag=false;
-    if (!flag){
-      redo_stack=[];
-      // count=0;
+    //  debugger
+    var i = 1;
+    while (stack[count + i] != null) {
+      // debugger
+      stack.pop();
     }
-    console.log("canvas", canvas);
+    flag = true;
+    // stack = []
     var json = canvas.toJSON();
-    console.log('stack updated');
-    stack.push(json);
-    console.log("stack: ", stack)
+    if (json != stack[stack.legth - 1]) {
+      console.log("json",json);
+      console.log("prev",stack.at(-1));
+      // stack.push(json);
+      setStack([...stack,json])
+      // debugger
+    }
+    // debugger
+    count = stack.length - 1;
   }
 
   function undo() {
-    flag=true;
-    console.log("start undo", stack);
-      // debugger
-    if (count>=3 || count > stack.length){
-      alert("You cannot undo more");
-    }
-    else {
-     var top = stack.pop();
-    // stack.push(top);
-     redo_stack.push(top);
-     console.log("redo",redo_stack);
     // debugger
-    if (stack.at(-1)){
-    canvas.loadFromJSON(stack.at(-1), canvas.requestRenderAll.bind(canvas));
+    setpopperstate(false);
+     if (!stack.length){
+      alert("you cannot do this")
+      return;
+     }
+    if (count > stack.length - 4) {
 
+      count = count - 1;
+      if (count >= 0) {
+
+        //  debugger
+        canvas.loadFromJSON(stack.at(count), canvas.requestRenderAll.bind(canvas));
+      }
+      // }
+      else {
+        if (flag) {
+          canvas.remove.apply(canvas, canvas.getObjects().concat());
+          flag = false;
+        }
+        else {
+          alert("you cannot do this")
+        }
+
+      }
     }
     else {
-      // debugger;
-      canvas.loadFromJSON(canvas, canvas.requestRenderAll.bind(canvas));
-    
-    }
-    count++;
-    // debugger
+      alert("you cannot undo more");
     }
 
   }
 
   function redo() {
-     
-    if (count>0 && flag ){
-    console.log("redo_stack", redo_stack);
-    canvas.loadFromJSON(redo_stack.pop(), canvas.requestRenderAll.bind(canvas));
-    count--;
+    flag = true;
+
+
+    if (count == stack.length - 1) {
+      alert("you are latest stage");
     }
     else {
-      alert("you cannot do this");
+      count++;
+
+      canvas.loadFromJSON(stack.at(count), canvas.requestRenderAll.bind(canvas));
     }
+
   }
 
   function zoomOut() {
@@ -105,31 +126,59 @@ function Navbar() {
     canvas.setWidth(canvas.getWidth() / 1.1);
   }
 
-  async function deletecanvas() {
+  function deletecanvas() {
     alert("Deleting Canvas elements");
     canvas.remove.apply(canvas, canvas.getObjects().concat());
-    await updateStack();
+    updateStack();
 
   }
-  if (canvas) {
-    var isObjectMoving  = false;
+
+  function checkmovement() {
+    var isObjectMoving = false;
     canvas.on('object:moving', function (event) {
-      console.log("object moving");
-       isObjectMoving = true;
+      isObjectMoving = true;
+      setpopperstate(false);
+   
     });
-    
+
     canvas.on('mouse:up', function (event) {
-      if (isObjectMoving){
-        console.log("object stopped");
+      if (isObjectMoving) {
         isObjectMoving = false;
-       updateStack();       
-      } 
+        updateStack();
+        setpopperstate(!popperstate);
+   
+      }
     });
 
   }
 
-  async function pdf() {
-    await updateStack();
+  if (canvas) {
+    checkmovement();
+
+    canvas.on('mouse:down', function (event) {
+      updateStack();
+      setpopperstate(false);
+      // canvas.on('object:selected', function (event) {
+      if (event.target) {
+        console.log("active", event.target);
+        setselected(event.target);
+        showpopper(event);
+      }
+
+
+    });
+    // });
+
+  }
+  function showpopper(event) {
+    if (event.target) {
+      setpopperstate(!popperstate);
+    }
+
+  }
+
+  function pdf() {
+    updateStack();
     canvas.isDrawingMode = false;
 
     alert('Exporting to print/pdf');
@@ -143,17 +192,15 @@ function Navbar() {
     });
   }
 
-  async function drawing() {
+  function drawing() {
 
     canvas.isDrawingMode = true;
     canvas.on('mouse:up', function (event) {
-        console.log("drawing stopped");
-         updateStack();       
+      console.log("drawing stopped");
+      updateStack();
     });
 
   }
-
-
 
   function zoomIn() {
     canvas.isDrawingMode = false;
@@ -166,7 +213,7 @@ function Navbar() {
     canvas.setWidth(canvas.getWidth() * 1.1);
   }
 
-  async function createcircle() {
+  function createcircle() {
     canvas.isDrawingMode = false;
     var circle = new fabric.Circle({
       radius: 15,
@@ -178,16 +225,16 @@ function Navbar() {
       hasControls: true
     });
     canvas.add(circle);
-    await updateStack();
+    updateStack();
   }
 
-  async function eraser() {
+  function eraser() {
     canvas.isDrawingMode = false;
     canvas.remove(canvas.getActiveObject());
-    await updateStack();
+    updateStack();
 
   }
-  async function createrectangle() {
+  function createrectangle() {
     canvas.isDrawingMode = false;
     var rectangle = new fabric.Rect({
       width: 200,
@@ -198,9 +245,9 @@ function Navbar() {
       strokeWidth: 3
     });
     canvas.add(rectangle);
-    await updateStack();
+    updateStack();
   }
-  async function createline() {
+  function createline() {
 
     canvas.isDrawingMode = false;
     var line = new fabric.Line([30, 10, 20, 100], {
@@ -208,9 +255,9 @@ function Navbar() {
       width: 10
     });
     canvas.add(line);
-    await updateStack();
+    updateStack();
   }
-  async function createtext() {
+  function createtext() {
     canvas.isDrawingMode = false;
     let text = new fabric.Textbox('TEXT',
       {
@@ -220,7 +267,7 @@ function Navbar() {
       });
 
     canvas.add(text);
-    await updateStack();
+    updateStack();
 
   }
 
@@ -295,9 +342,14 @@ function Navbar() {
 
       </div>
       <canvas id="mycanvas" />
-
+      {popperstate &&
+        <>
+          <Popper selected={selected} />
+        </>
+      }
     </div>
   )
 }
 
 export default Navbar
+
