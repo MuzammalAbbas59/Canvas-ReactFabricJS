@@ -56,9 +56,9 @@ function Navbar() {
     // stack = []
     var json = canvas.toJSON();
     if (json != stack[stack.legth - 1]) {
-      console.log("json",json);
-      console.log("prev",stack.at(-1));
-      // stack.push(json);
+      // console.log("json",json);
+      // console.log("prev",stack.at(-1));
+      // // stack.push(json);
       setStack([...stack,json])
       // debugger
     }
@@ -160,7 +160,7 @@ function Navbar() {
       setpopperstate(false);
       // canvas.on('object:selected', function (event) {
       if (event.target) {
-        console.log("active", event.target);
+        // console.log("active", event.target);
         setselected(event.target);
         showpopper(event);
       }
@@ -216,11 +216,11 @@ function Navbar() {
   function createcircle() {
     canvas.isDrawingMode = false;
     var circle = new fabric.Circle({
-      radius: 15,
-      fill: 'blue',
+      radius: 45,
+      fill: '#0000FF',
       left: 100,
       top: 100,
-      stroke: "red",
+      stroke: "#7DF9FF",
       selectable: true,
       hasControls: true
     });
@@ -240,8 +240,9 @@ function Navbar() {
       width: 200,
       selection: true,
       height: 100,
-      fill: 'black',
-      stroke: 'green',
+      fill: '#000000',
+      transparentCorners: false,
+      stroke: '#ff0000',
       strokeWidth: 3
     });
     canvas.add(rectangle);
@@ -261,7 +262,7 @@ function Navbar() {
     canvas.isDrawingMode = false;
     let text = new fabric.Textbox('TEXT',
       {
-        width: 450,
+        width:100,
         editable: true,
         fill: 'white'
       });
@@ -352,4 +353,3 @@ function Navbar() {
 }
 
 export default Navbar
-
