@@ -56,6 +56,8 @@ function Navbar() {
   }
 
   function undo() {
+    seterase(false);
+    setisdraw(false);
     setpopperstate(false);
     if (!stack.length) {
       alert("you cannot do this")
@@ -82,6 +84,8 @@ function Navbar() {
   }
 
   function redo() {
+    seterase(false);
+    setisdraw(false);
     flag = true;
     if (count == stack.length - 1) {
       alert("you are latest stage");
@@ -95,6 +99,8 @@ function Navbar() {
   function zoomOut() {
     console.log("start zoom", stack);
     canvas.isDrawingMode = false;
+    seterase(false);
+    setisdraw(false);
     if (canvas.getZoom().toFixed(5) <= 0.33) {
       alert("cannot zoomout more")
       return;
@@ -106,6 +112,8 @@ function Navbar() {
 
   function deletecanvas() {
     alert("Deleting Canvas elements");
+    seterase(false);
+    setisdraw(false);
     canvas.remove.apply(canvas, canvas.getObjects().concat());
     updateStack();
   }
@@ -152,6 +160,8 @@ function Navbar() {
   function pdf() {
     updateStack();
     canvas.isDrawingMode = false;
+    seterase(false);
+    setisdraw(false);
     alert('Exporting to print/pdf');
     const domElement = document.getElementById("mycanvas");
     html2canvas(domElement, {
@@ -165,6 +175,8 @@ function Navbar() {
 
   function zoomIn() {
     canvas.isDrawingMode = false;
+    seterase(false);
+    setisdraw(false);
     if (canvas.getZoom().toFixed(5) > 2) {
       alert("cannot zoomIN more")
       return;
@@ -186,57 +198,63 @@ function Navbar() {
       hasControls: true
     });
     canvas.add(circle);
+    seterase(false);
+    setisdraw(false);    
     updateStack();
   }
 
   function eraser() {
     setpopperstate(false);
     canvas.isDrawingMode = false;
+    setisdraw(false);    
     seterase(erase => !erase);
     console.log(erase)
   }
-
-
+  
   useEffect(() => {
-    const handleClick = event => {
-      console.log("erase on");
-      canvas.remove(canvas.getActiveObject());
-      setpopperstate(false);
-      updateStack();
-      canvas.renderAll();
-    }    
     if (canvas) {
+      const handleClick = event => {
+        canvas.remove(canvas.getActiveObject());
+        setpopperstate(false);
+        updateStack();
+      }    
+    
       // debugger;
       if (erase) {
+
         alert("Erasing mode is on");
         canvas.on('mouse:down',handleClick);
       }
       else {
         
-        canvas.off('mouse:down', handleClick);
+        canvas.off('mouse:down');
         alert("Erasing mode is off");
-        setpopperstate(false);
+        // setpopperstate(false);
       }
     }
-  }, [])
+  }, [erase])
 
   function drawing() {
+    seterase(false);
     setisdraw(crr => !crr);
   }
   useEffect(() => {
     if (canvas) {
+
+      const handleClick = event => {
+        if (event.target){
+        updateStack();
+        }
+      }    
       if (isdraw) {
         alert("drawing mode is on");
         canvas.isDrawingMode = true;
-        canvas.on('mouse:up', function (event) {
-          if (event.target) {
-            updateStack();
-          }
-        });
+        canvas.on('mouse:up', handleClick);
       }
       else {
         alert("drawing mode stopped");
         canvas.isDrawingMode = false;
+        canvas.off('mouse:up');
       }
     }
   }, [isdraw])
@@ -253,6 +271,9 @@ function Navbar() {
       strokeWidth: 3
     });
     canvas.add(rectangle);
+    seterase(false);
+    setisdraw(false);    
+  
     updateStack();
   }
 
@@ -263,6 +284,9 @@ function Navbar() {
       width: 30
     });
     canvas.add(line);
+    seterase(false);
+    setisdraw(false);    
+  
     updateStack();
   }
 
@@ -275,6 +299,8 @@ function Navbar() {
         fill: 'white'
       });
     canvas.add(text);
+    seterase(false);
+    setisdraw(false);    
     updateStack();
   }
 
