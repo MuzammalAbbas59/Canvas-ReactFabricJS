@@ -63,7 +63,12 @@
     height: 20px;
     margin-top: 4px;
 }
-
+.heading3{
+    margin-left: 150px;
+    justify-content: center;
+    height: 20px;
+    margin-top: 4px;
+}
 .buttons{
     display: flex;
     margin-top: 2px;

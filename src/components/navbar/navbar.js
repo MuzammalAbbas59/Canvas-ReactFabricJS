@@ -23,6 +23,7 @@ import Popper from './popper';
 import SPopper from './smallpopper';
 import Packages from './packages';
 
+
 function Navbar() {
   var count = 0;
   let [stack, setStack] = useState([]);
@@ -147,6 +148,7 @@ function Navbar() {
           setpopperstate(true);
 
         }
+
         if (!event.target.fill) {
           setpopperstate(false);
           setspopperstate(true);
@@ -159,14 +161,13 @@ function Navbar() {
     if (canvas) {
 
       const handleClick = event => {
-        console.log("abc");
         if (!event.target) {
           setpopperstate(false);
           setspopperstate(false);
 
         }
         else {
-          console.log(event.target);
+          if (event.target.stroke){
           if (event.target.fill) {
             setselected(event.target);
             setpopperstate(crr => !crr);
@@ -179,6 +180,7 @@ function Navbar() {
             setpopperstate(false);
             checkmovement();
           }
+        }
         }
       }
 
@@ -333,9 +335,20 @@ function Navbar() {
 
   const [pkg, setpkg] = useState(false);
 
-  function packageCall() {
-    setpkg(crr => true);
+
+  function display(imgElement){
+    console.log(imgElement);
+    fabric.Image.fromURL(imgElement, function(myImg) {
+      //i create an extra var for to change some image properties
+      var img1 = myImg.set({ left: 50, top: 20 ,width:50,height:50});
+      canvas.add(img1); 
+     }); 
   }
+
+  function packageCall() {
+    setpkg(crr=>!crr);
+  }
+
   function createtext() {
     canvas.isDrawingMode = false;
     let text = new fabric.Textbox('TEXT',
@@ -416,7 +429,7 @@ function Navbar() {
         <SPopper selected={selected} />
       }
       {pkg &&  
-       <Packages />
+       <Packages  state={setpkg} display={display}/>
       }
     </div>
   )
