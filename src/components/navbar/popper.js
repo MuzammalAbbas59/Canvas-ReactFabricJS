@@ -4,12 +4,10 @@ import "react-color-palette/lib/css/styles.css";
 import './navbar.css'
 import * as React from 'react';
 import Slider from '@mui/material/Slider';
-import { useMount } from './custom-hooks.js'
 
 function Popper(props) {
 
  var colorch=props.selected.fill;
-
  var fill=colorch.substring(0,7);
  var opacityyy=colorch.substring(7,9);
  var k=parseInt(opacityyy,16);
@@ -34,7 +32,7 @@ function Popper(props) {
     /* Backward compatibility for whole number based opacity values. */
     if (opacity >= 1 && opacity <= 255) {
       opacity = opacity / 255;
-      // console.log("opacityyy",opacity);
+     
     }
     return `rgba(${r},${g},${b},${opacity})`;
   };
@@ -50,10 +48,6 @@ function Popper(props) {
       g = parseInt(trim(inParts[1]), 10),
       b = parseInt(trim(inParts[2]), 10),
      a = parseFloat(trim(inParts[3].substring(0, inParts[3].length - 1))).toFixed(1);
-    //  console.log("opacity fun",a);
-     var n=a*100;
-    //  console.log('n',n);
-     
      var outParts = [
       r.toString(16),
       g.toString(16),
@@ -67,12 +61,10 @@ function Popper(props) {
         outParts[i] = '0' + part;
       }
     })
-  
     return ('#' + outParts.join(''));
   }
   
   function setmethod(colorobj, opacityobj) {
-
     var tostring = colorobj.toString();
     var newcol = convertHexToRGBA(tostring, opacityobj)
     var ans= rgbaToHex(newcol)
@@ -83,16 +75,12 @@ function Popper(props) {
   React.useEffect(()=>{
 
     setmethod(color, (opacity));
-    props.selected.canvas.renderAll();
-   
+     props.selected.canvas.renderAll();
+    
   },[color])
+
   function handleChangeColor(event) {  
     setcolor(event.target.value);
-    // props.selected.canvas.renderAll();
-
-
-// props.selected.set({ "fill": (color) });
-   
   }
   function handleChangeStroke(event) {
     setstroke(event.target.value);
@@ -102,7 +90,6 @@ function Popper(props) {
 
  
   function handleChangeOpacity(event) {
-    console.log("props",props.selected.fill);
     setcolor(color);
     var a=((event.target.value));
     setopacity(a);
@@ -122,11 +109,9 @@ function Popper(props) {
           <ListGroup.Item><input style={{ width: 200 }} type="color"
             onChange={handleChangeColor}
             id="favcolor" name="favcolor" value={color} ></input></ListGroup.Item> <br></br>
-          {/* {console.log("input")} */}
           Opacity:<br></br>
           <Slider sx={{ maxWidth: 200 }}
             aria-label="Opacity"
-            // defaultValue={opacity}
             value={opacity}
             max={255}
             min={11}

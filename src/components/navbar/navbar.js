@@ -20,6 +20,8 @@ import html2canvas from "html2canvas";
 import jsPdf from "jspdf";
 import { useMount } from './custom-hooks.js'
 import Popper from './popper';
+import SPopper from './smallpopper';
+
 
 function Navbar() {
   var count = 0;
@@ -28,6 +30,8 @@ function Navbar() {
   let [canvas, setCanvas] = useState(null);
   let [selected, setselected] = useState(null);
   const [popperstate, setpopperstate] = useState(false);
+  const [spopperstate, setspopperstate] = useState(false);
+  
   const [isdraw, setisdraw] = useState(false);
   const [erase, seterase] = useState(false);
   useMount(() => {
@@ -37,7 +41,7 @@ function Navbar() {
   const initCanvas = () => (
     new fabric.Canvas('mycanvas', {
       height: 1200,
-      width: 800,
+      width: 1000,
       backgroundColor: "lightgray",
     })
   );
@@ -59,6 +63,8 @@ function Navbar() {
     seterase(false);
     setisdraw(false);
     setpopperstate(false);
+    setspopperstate(false);
+    
     if (!stack.length) {
       alert("you cannot do this")
       return;
@@ -114,6 +120,9 @@ function Navbar() {
     alert("Deleting Canvas elements");
     seterase(false);
     setisdraw(false);
+    setpopperstate(false);
+    setspopperstate(false);
+    
     canvas.remove.apply(canvas, canvas.getObjects().concat());
     updateStack();
   }
@@ -123,6 +132,8 @@ function Navbar() {
     canvas.on('object:moving', function (event) {
       isObjectMoving = true;
       setpopperstate(false);
+      setspopperstate(false);
+      
     });
 
     canvas.on('mouse:up', function (event) {
@@ -131,31 +142,58 @@ function Navbar() {
         if (event.target) {
           updateStack();
         }
-        setpopperstate(!popperstate);
+        if (event.target.fill){
+         setspopperstate(false);
+        setpopperstate(true);
+        
+        }
+        if (!event.target.fill){
+          setpopperstate(false);
+          setspopperstate(true);
+          }
       }
     });
   }
 
-  if (canvas) {
-    checkmovement();
-    canvas.on('mouse:down', function (event) {
-      updateStack();
-      setpopperstate(false);
-      if (event.target) {
+  useEffect(() => {
+    if (canvas) {
 
-        setselected(event.target);
-        showpopper(event);
+      const handleClick = event => {
+        console.log("abc");
+        if (!event.target) {
+          setpopperstate(false);
+          setspopperstate(false);
+          
+        }
+        else{
+          console.log(event.target);
+          if (event.target.fill){
+          setselected(event.target);
+          setpopperstate(crr => !crr);
+          checkmovement();  
+          }
+          else{
+            // debugger;
+            setselected(event.target);
+            setspopperstate(crr => !crr);
+            setpopperstate(false);
+            checkmovement();
+          }
+        }
       }
-    });
-  }
 
-  function showpopper(event) {
-    if (event.target) {
-      if (!erase) {
-        setpopperstate(!popperstate);
+      // console.log("erase", erase);
+      if (erase == false) {
+        console.log("event called")
+        canvas.on('mouse:down', handleClick);
+      }
+      else {
+        console.log("Eraser now", erase)
+        canvas.off('mouse:down');
       }
     }
-  }
+  }, [canvas, erase]);
+
 
   function pdf() {
     updateStack();
@@ -199,37 +237,41 @@ function Navbar() {
     });
     canvas.add(circle);
     seterase(false);
-    setisdraw(false);    
+    setisdraw(false);
     updateStack();
+    setspopperstate(false);
   }
 
   function eraser() {
     setpopperstate(false);
+    setspopperstate(false);
+    
     canvas.isDrawingMode = false;
-    setisdraw(false);    
+    setisdraw(false);
     seterase(erase => !erase);
     console.log(erase)
   }
-  
+
   useEffect(() => {
     if (canvas) {
+      // debugger;
       const handleClick = event => {
         canvas.remove(canvas.getActiveObject());
         setpopperstate(false);
+        setspopperstate(false);
+        
         updateStack();
-      }    
-    
-      // debugger;
+      }
       if (erase) {
 
         alert("Erasing mode is on");
-        canvas.on('mouse:down',handleClick);
+        canvas.on('mouse:down', handleClick);
       }
       else {
-        
+
         canvas.off('mouse:down');
         alert("Erasing mode is off");
-        // setpopperstate(false);
+
       }
     }
   }, [erase])
@@ -240,12 +282,11 @@ function Navbar() {
   }
   useEffect(() => {
     if (canvas) {
-
       const handleClick = event => {
-        if (event.target){
-        updateStack();
+        if (event.target) {
+          updateStack();
         }
-      }    
+      }
       if (isdraw) {
         alert("drawing mode is on");
         canvas.isDrawingMode = true;
@@ -272,8 +313,8 @@ function Navbar() {
     });
     canvas.add(rectangle);
     seterase(false);
-    setisdraw(false);    
-  
+    setisdraw(false);
+    setspopperstate(false);
     updateStack();
   }
 
@@ -285,8 +326,8 @@ function Navbar() {
     });
     canvas.add(line);
     seterase(false);
-    setisdraw(false);    
-  
+    setisdraw(false);
+
     updateStack();
   }
 
@@ -296,11 +337,11 @@ function Navbar() {
       {
         width: 100,
         editable: true,
-        fill: 'white'
+        fill: '#000000'
       });
     canvas.add(text);
     seterase(false);
-    setisdraw(false);    
+    setisdraw(false);
     updateStack();
   }
 
@@ -366,6 +407,11 @@ function Navbar() {
       {popperstate &&
         <>
           <Popper selected={selected} />
+        </>
+      }
+       {spopperstate &&
+        <>
+          <SPopper selected={selected} />
         </>
       }
     </div>
