@@ -46,6 +46,24 @@
     width: 80px;
 }
 
+.head{
+    display: flex;
+     padding-top: 0px;
+}
+
+.heading1{
+     margin-left: 10px; 
+     margin-top: 0px;
+     font-size: larger;
+}
+
+.heading2{
+    margin-left: 80px;
+    justify-content: center;
+    height: 20px;
+    margin-top: 4px;
+}
+
 .buttons{
     display: flex;
     margin-top: 2px;

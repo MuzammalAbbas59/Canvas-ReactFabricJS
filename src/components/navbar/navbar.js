@@ -21,7 +21,7 @@ import jsPdf from "jspdf";
 import { useMount } from './custom-hooks.js'
 import Popper from './popper';
 import SPopper from './smallpopper';
-
+import Packages from './packages';
 
 function Navbar() {
   var count = 0;
@@ -31,7 +31,7 @@ function Navbar() {
   let [selected, setselected] = useState(null);
   const [popperstate, setpopperstate] = useState(false);
   const [spopperstate, setspopperstate] = useState(false);
-  
+
   const [isdraw, setisdraw] = useState(false);
   const [erase, seterase] = useState(false);
   useMount(() => {
@@ -41,7 +41,7 @@ function Navbar() {
   const initCanvas = () => (
     new fabric.Canvas('mycanvas', {
       height: 1200,
-      width: 1000,
+      width: 850,
       backgroundColor: "lightgray",
     })
   );
@@ -64,7 +64,7 @@ function Navbar() {
     setisdraw(false);
     setpopperstate(false);
     setspopperstate(false);
-    
+
     if (!stack.length) {
       alert("you cannot do this")
       return;
@@ -122,7 +122,7 @@ function Navbar() {
     setisdraw(false);
     setpopperstate(false);
     setspopperstate(false);
-    
+
     canvas.remove.apply(canvas, canvas.getObjects().concat());
     updateStack();
   }
@@ -133,7 +133,7 @@ function Navbar() {
       isObjectMoving = true;
       setpopperstate(false);
       setspopperstate(false);
-      
+
     });
 
     canvas.on('mouse:up', function (event) {
@@ -142,15 +142,15 @@ function Navbar() {
         if (event.target) {
           updateStack();
         }
-        if (event.target.fill){
-         setspopperstate(false);
-        setpopperstate(true);
-        
+        if (event.target.fill) {
+          setspopperstate(false);
+          setpopperstate(true);
+
         }
-        if (!event.target.fill){
+        if (!event.target.fill) {
           setpopperstate(false);
           setspopperstate(true);
-          }
+        }
       }
     });
   }
@@ -163,16 +163,16 @@ function Navbar() {
         if (!event.target) {
           setpopperstate(false);
           setspopperstate(false);
-          
+
         }
-        else{
+        else {
           console.log(event.target);
-          if (event.target.fill){
-          setselected(event.target);
-          setpopperstate(crr => !crr);
-          checkmovement();  
+          if (event.target.fill) {
+            setselected(event.target);
+            setpopperstate(crr => !crr);
+            checkmovement();
           }
-          else{
+          else {
             // debugger;
             setselected(event.target);
             setspopperstate(crr => !crr);
@@ -245,7 +245,7 @@ function Navbar() {
   function eraser() {
     setpopperstate(false);
     setspopperstate(false);
-    
+
     canvas.isDrawingMode = false;
     setisdraw(false);
     seterase(erase => !erase);
@@ -259,7 +259,7 @@ function Navbar() {
         canvas.remove(canvas.getActiveObject());
         setpopperstate(false);
         setspopperstate(false);
-        
+
         updateStack();
       }
       if (erase) {
@@ -331,6 +331,11 @@ function Navbar() {
     updateStack();
   }
 
+  const [pkg, setpkg] = useState(false);
+
+  function packageCall() {
+    setpkg(crr => true);
+  }
   function createtext() {
     canvas.isDrawingMode = false;
     let text = new fabric.Textbox('TEXT',
@@ -393,7 +398,7 @@ function Navbar() {
           <LocalPrintshopOutlinedIcon />
         </div>
         <div className="nav-buttons">
-          <div className="buttons" id="packages-button">
+          <div onClick={packageCall} className="buttons" id="packages-button">
             <div>< CardGiftcardIcon /> </div>
             Packages
           </div>
@@ -405,14 +410,13 @@ function Navbar() {
       </div>
       <canvas id="mycanvas" />
       {popperstate &&
-        <>
-          <Popper selected={selected} />
-        </>
+        <Popper selected={selected} />
       }
-       {spopperstate &&
-        <>
-          <SPopper selected={selected} />
-        </>
+      {spopperstate &&
+        <SPopper selected={selected} />
+      }
+      {pkg &&  
+       <Packages />
       }
     </div>
   )
