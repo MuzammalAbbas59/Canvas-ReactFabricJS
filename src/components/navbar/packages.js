@@ -33,15 +33,15 @@ function Packages({state,canvas}) {
               <button onClick={e=>state(false)} className='heading2' id="cross-button" >X </button>
             </div>
             <div className='heading1' style={{position: 'absolute'}} sx={{ fontSize: 24 }} component="div">
-            <img onClick={displayImage} src={img1src} height='20px'/>
+            <img onClick={displayImage} draggable="true" src={img1src} height='20px'/>
             </div >
             <p className='heading3' id="cross-button" >One</p>
             <div  className='heading1' style={{position: 'absolute'}} sx={{ fontSize: 18 }} component="div">
-            <img onClick={displayImage} src={img2} height='20px'/>  
+            <img onClick={displayImage} draggable="true" src={img2} height='20px'/>  
             </div>
             <p className='heading3' id="cross-button" >Two</p>
             <div className='heading1' style={{position: 'absolute'}} sx={{ fontSize: 18 }} component="div">
-            <img onClick={displayImage} src={img3} height='20px'/>
+            <img onClick={displayImage} draggable="true" src={img3} height='20px'/>
             </div>
             <p className='heading3' id="cross-button" >Teen</p>
       

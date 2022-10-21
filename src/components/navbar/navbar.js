@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { fabric } from 'fabric';
 import './navbar.css'
 import icons from "../Icons"
-import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
-import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import html2canvas from "html2canvas";
 import jsPdf from "jspdf";
 import { useMount } from './custom-hooks.js'
@@ -20,6 +18,7 @@ function Navbar() {
   const [isDraw, setisDraw] = useState(false);
   const [erase, setErase] = useState(false);
 
+
   useMount(() => {
     setCanvas(initCanvas());
   });
@@ -27,8 +26,8 @@ function Navbar() {
   const initCanvas = () => (
     new fabric.Canvas('mycanvas', {
       height: 1200,
-      width: 850,
-      backgroundColor: "lightgray",
+      width: 800,
+      backgroundImage: "https://wallpaper.dog/large/20394818.jpg"
     })
   );
 
@@ -103,7 +102,7 @@ function Navbar() {
           updateStack();
           setPopperstate(true);
         }
-       }
+      }
     });
   }
 
@@ -114,12 +113,12 @@ function Navbar() {
           setPopperstate(false);
         }
         else {
-            setSelected(event.target);
-            setPopperstate(crr => !crr);
-            checkmovement();
-       }
-        }    
-     if (erase == false) {
+          setSelected(event.target);
+          setPopperstate(crr => !crr);
+          checkmovement();
+        }
+      }
+      if (erase == false) {
         canvas.on('mouse:down', handleClick);
       }
       else {
@@ -153,29 +152,31 @@ function Navbar() {
     updateStates();
   }
 
-  function updateStates(){
+  function updateStates() {
     setErase(false);
     setisDraw(false);
     updateStack();
   }
 
-
-  function setZoomCanvas(event,params) {
-    if (params=="zoomin"){
-    if (canvas.getZoom().toFixed(5) > 2) {
-      alert("cannot zoomIN more")
-      return;
-    }
-    canvas.setZoom(canvas.getZoom() * 1.1);
+const [zoomValue,setZoomValue]=useState(null);
+  function setZoomCanvas(event, params) {
+    if (params == "zoomin") {
+      if (canvas.getZoom().toFixed(5) > 2) {
+        alert("cannot zoomIN more")
+        return;
+      }
+      setZoomValue(canvas.getZoom() * 1.1);
+      canvas.setZoom(canvas.getZoom() * 1.1);
+     
     }
     else {
-    if (canvas.getZoom().toFixed(5) <= 0.33) {
-      alert("cannot zoomout more")
-      return;
+      if (canvas.getZoom().toFixed(5) <= 0.33) {
+        alert("cannot zoomout more")
+        return;
+      }
+      canvas.setZoom(canvas.getZoom() / 1.1);
     }
-    canvas.setZoom(canvas.getZoom() / 1.1);
   }
-}
 
   function eraser() {
     setPopperstate(false);
@@ -205,7 +206,7 @@ function Navbar() {
 
   function drawing() {
     setErase(false);
-    canvas.isDrawingMode = !isDraw;   
+    canvas.isDrawingMode = !isDraw;
     setisDraw(crr => !crr);
   }
 
@@ -234,8 +235,8 @@ function Navbar() {
     updateStates();
   }
 
+
   const [packageState, setPackageState] = useState(false);
-  
   function createtext() {
     let text = new fabric.Textbox('TEXT',
       {
@@ -250,32 +251,32 @@ function Navbar() {
   return (
     <div>
       <div className='Container navbar '>
-        <icons.ZoomOutIcon onClick={event=>setZoomCanvas(event,"zoomout")} className="navbar-icons" id="Zoomout" />
-        <icons.ZoomInIcon onClick={event=>setZoomCanvas(event,"zoomin")}className="navbar-icons" id="ZoomIn" />
-        <div className="divider-icon"/>
-        <icons.UndoIcon onClick={undo} className="navbar-icons"  />
-        <icons.RedoIcon onClick={redo} className="navbar-icons"/>
-        <div className="divider-icon"/>
-        <icons.TextFormatIcon onClick={createtext} className="navbar-icons"/>
-        <icons.HorizontalRuleIcon onClick={createline} className="navbar-icons"/>
-        <icons.PanoramaFishEyeIcon  onClick={createcircle} className="navbar-icons"/>
-        <icons.Crop169Icon  onClick={createrectangle} className="navbar-icons"/>
-        <div className="divider-icon"/>
-        <icons.CreateIcon  onClick={drawing} className="navbar-icons"/>
-        <icons.RemoveCircleOutlineIcon   onClick={eraser} className="navbar-icons"/>
-        <icons.DeleteForeverOutlinedIcon   onClick={deletecanvas} className="navbar-icons"/>
-        <div className="divider-icon"/>
-        <icons.OpenInNewIcon    onClick={pdf} className="navbar-icons"/>
-        <icons.LocalPrintshopOutlinedIcon onClick={pdf} className="navbar-icons"/>
+        <icons.ZoomOutIcon onClick={event => setZoomCanvas(event, "zoomout")} className="navbar-icons" id="Zoomout" />
+        <icons.ZoomInIcon onClick={event => setZoomCanvas(event, "zoomin")} className="navbar-icons" id="ZoomIn" />
+        <div className="divider-icon" />
+        <icons.UndoIcon onClick={undo} className="navbar-icons" />
+        <icons.RedoIcon onClick={redo} className="navbar-icons" />
+        <div className="divider-icon" />
+        <icons.TextFormatIcon onClick={createtext} className="navbar-icons" />
+        <icons.HorizontalRuleIcon onClick={createline} className="navbar-icons" />
+        <icons.PanoramaFishEyeIcon onClick={createcircle} className="navbar-icons" />
+        <icons.Crop169Icon onClick={createrectangle} className="navbar-icons" />
+        <div className="divider-icon" />
+        <icons.CreateIcon onClick={drawing} className="navbar-icons" />
+        <icons.RemoveCircleOutlineIcon onClick={eraser} className="navbar-icons" />
+        <icons.DeleteForeverOutlinedIcon onClick={deletecanvas} className="navbar-icons" />
+        <div className="divider-icon" />
+        <icons.OpenInNewIcon onClick={pdf} className="navbar-icons" />
+        <icons.LocalPrintshopOutlinedIcon onClick={pdf} className="navbar-icons" />
         <div className="nav-buttons">
           <button onClick={() => { setPackageState(crr => !crr) }} className="buttons" id="packages-button">
-            <icons.CardGiftcardIcon/>  Packages </button>
+            <icons.CardGiftcardIcon />  Packages </button>
           <button className="buttons" id="Save-button"><icons.SaveRoundedIcon />Save</button>
         </div>
       </div>
       <canvas id="mycanvas" />
-      {popperstate && <Popper selected={selected} />}
-      {packageState && <Packages  state={setPackageState} canvas={canvas}/> }
+      {popperstate && <Popper selected={selected} zoom={zoomValue} />}
+      {packageState && <Packages state={setPackageState} canvas={canvas} />}
     </div>
   )
 }

@@ -79,12 +79,13 @@ function Popper(props) {
     props.selected.set({ "stroke": stroke });
     props.selected.canvas.renderAll();
   }
-
+  console.log(props.zoom);
+  
   return (
     <Card className='pops' >
       <div>
         <ListGroup style={{
-          backgroundColor: 'white', width: '14rem', top: props.selected.top + "px",
+          backgroundColor: 'white', width: '14rem', top: (props.selected.top)*(props.zoom) + "px",
           left: props.selected.left + props.selected.width + 70 + 'px', position: "absolute"
         }}
           variant="flush"> <br />
