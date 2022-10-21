@@ -104,7 +104,7 @@ function Popper(props) {
           backgroundColor: 'white', width: '14rem', top: props.selected.top + "px",
           left: props.selected.left + props.selected.width + 70 + 'px', position: "absolute"
         }}
-          variant="flush"> <br></br>
+          variant="flush"> <br/>
           <label>Color:</label> <br></br>
           <ListGroup.Item><input style={{ width: 200 }} type="color"
             onChange={handleChangeColor}
@@ -114,7 +114,7 @@ function Popper(props) {
             aria-label="Opacity"
             value={opacity}
             max={255}
-            min={11}
+            min={1}
             onChange={handleChangeOpacity}
             color="primary"
           />

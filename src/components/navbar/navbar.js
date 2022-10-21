@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fabric } from 'fabric';
 import './navbar.css'
-import ZoomOutIcon from '@mui/icons-material/ZoomOut';
+import icons from "../Icons"
+// import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
@@ -61,11 +62,6 @@ function Navbar() {
   }
 
   function undo() {
-    seterase(false);
-    setisdraw(false);
-    setpopperstate(false);
-    setspopperstate(false);
-
     if (!stack.length) {
       alert("you cannot do this")
       return;
@@ -103,29 +99,29 @@ function Navbar() {
     }
   }
 
-  function zoomOut() {
-    console.log("start zoom", stack);
-    canvas.isDrawingMode = false;
-    seterase(false);
-    setisdraw(false);
+  function setZoomCanvas(event,params) {
+    updateStates();
+    if (params=="zoomin"){
+    if (canvas.getZoom().toFixed(5) > 2) {
+      alert("cannot zoomIN more")
+      return;
+    }
+    canvas.setZoom(canvas.getZoom() * 1.1);
+    }
+    else {
     if (canvas.getZoom().toFixed(5) <= 0.33) {
       alert("cannot zoomout more")
       return;
     }
     canvas.setZoom(canvas.getZoom() / 1.1);
-    canvas.setHeight(canvas.getHeight() / 1.1);
-    canvas.setWidth(canvas.getWidth() / 1.1);
   }
+}
 
   function deletecanvas() {
     alert("Deleting Canvas elements");
-    seterase(false);
-    setisdraw(false);
-    setpopperstate(false);
-    setspopperstate(false);
-
     canvas.remove.apply(canvas, canvas.getObjects().concat());
-    updateStack();
+    updateStates();
+   
   }
 
   function checkmovement() {
@@ -167,7 +163,7 @@ function Navbar() {
 
         }
         else {
-          if (event.target.stroke){
+          // if (event.target.stroke){
           if (event.target.fill) {
             setselected(event.target);
             setpopperstate(crr => !crr);
@@ -180,7 +176,7 @@ function Navbar() {
             setpopperstate(false);
             checkmovement();
           }
-        }
+          // }
         }
       }
 
@@ -198,11 +194,7 @@ function Navbar() {
 
 
   function pdf() {
-    updateStack();
-    canvas.isDrawingMode = false;
-    seterase(false);
-    setisdraw(false);
-    alert('Exporting to print/pdf');
+    updateStates();
     const domElement = document.getElementById("mycanvas");
     html2canvas(domElement, {
     }).then(canvas => {
@@ -213,18 +205,6 @@ function Navbar() {
     });
   }
 
-  function zoomIn() {
-    canvas.isDrawingMode = false;
-    seterase(false);
-    setisdraw(false);
-    if (canvas.getZoom().toFixed(5) > 2) {
-      alert("cannot zoomIN more")
-      return;
-    }
-    canvas.setZoom(canvas.getZoom() * 1.1);
-    canvas.setHeight(canvas.getHeight() * 1.1);
-    canvas.setWidth(canvas.getWidth() * 1.1);
-  }
 
   function createcircle() {
     canvas.isDrawingMode = false;
@@ -234,22 +214,18 @@ function Navbar() {
       left: 100,
       top: 100,
       stroke: "#7DF9FF",
-      selectable: true,
-      hasControls: true
     });
     canvas.add(circle);
-    seterase(false);
-    setisdraw(false);
-    updateStack();
-    setspopperstate(false);
+    updateStates();
+    
   }
 
   function eraser() {
     setpopperstate(false);
     setspopperstate(false);
-
     canvas.isDrawingMode = false;
     setisdraw(false);
+    // updateStates();
     seterase(erase => !erase);
     console.log(erase)
   }
@@ -267,7 +243,7 @@ function Navbar() {
       if (erase) {
 
         alert("Erasing mode is on");
-        canvas.on('mouse:down', handleClick);
+        canvas.on('mouse:down', handleClick); /// common events
       }
       else {
 
@@ -280,27 +256,28 @@ function Navbar() {
 
   function drawing() {
     seterase(false);
+    canvas.isDrawingMode = !isdraw
     setisdraw(crr => !crr);
   }
-  useEffect(() => {
-    if (canvas) {
-      const handleClick = event => {
-        if (event.target) {
-          updateStack();
-        }
-      }
-      if (isdraw) {
-        alert("drawing mode is on");
-        canvas.isDrawingMode = true;
-        canvas.on('mouse:up', handleClick);
-      }
-      else {
-        alert("drawing mode stopped");
-        canvas.isDrawingMode = false;
-        canvas.off('mouse:up');
-      }
-    }
-  }, [isdraw])
+  // useEffect(() => {
+  //   if (canvas) {
+  //     const handleClick = event => {
+  //       if (event.target) {
+  //         updateStack();
+  //       }
+  //     }
+  //     if (isdraw) {
+  //       alert("drawing mode is on");
+  //       canvas.isDrawingMode = true;
+  //       canvas.on('mouse:up', handleClick);
+  //     }
+  //     else {
+  //       alert("drawing mode stopped");
+  //       canvas.isDrawingMode = false;
+  //       canvas.off('mouse:up');
+  //     }
+  //   }
+  // }, [isdraw])
 
   function createrectangle() {
     canvas.isDrawingMode = false;
@@ -314,10 +291,7 @@ function Navbar() {
       strokeWidth: 3
     });
     canvas.add(rectangle);
-    seterase(false);
-    setisdraw(false);
-    setspopperstate(false);
-    updateStack();
+    updateStates();
   }
 
   function createline() {
@@ -327,26 +301,25 @@ function Navbar() {
       width: 30
     });
     canvas.add(line);
+    updateStates();
+    
+  }
+
+  function updateStates(){
     seterase(false);
     setisdraw(false);
-
     updateStack();
   }
 
   const [pkg, setpkg] = useState(false);
 
 
-  function display(imgElement){
+  function display(imgElement) {
     console.log(imgElement);
-    fabric.Image.fromURL(imgElement, function(myImg) {
-      //i create an extra var for to change some image properties
-      var img1 = myImg.set({ left: 50, top: 20 ,width:50,height:50});
-      canvas.add(img1); 
-     }); 
-  }
-
-  function packageCall() {
-    setpkg(crr=>!crr);
+    fabric.Image.fromURL(imgElement, function (myImg) {
+      var img1 = myImg.set({ left: 50, top: 20, width: 50, height: 50 });
+      canvas.add(img1);
+    });
   }
 
   function createtext() {
@@ -358,69 +331,38 @@ function Navbar() {
         fill: '#000000'
       });
     canvas.add(text);
-    seterase(false);
-    setisdraw(false);
-    updateStack();
+    updateStates();
+    
   }
 
   return (
     <div>
       <div className='Container navbar '>
-        <div onClick={zoomOut} className="navbar-icons" id="Zoomout">
-          <ZoomOutIcon />
-        </div>
-        <div onClick={zoomIn} className="navbar-icons" id="Zoomin">
-          <ZoomInIcon />
-        </div>
-        <div className="divider-icon">
-        </div>
-        <div onClick={undo} className="navbar-icons" id="undo">
-          <UndoIcon />
-        </div>
-        <div onClick={redo} className="navbar-icons" id="redo">
-          <RedoIcon />
-        </div>
-        <div className="divider-icon"> </div>
-        <div onClick={createtext} className="navbar-icons" id="text">
-          <TextFormatIcon />
-        </div>
-        <div onClick={createline} className="navbar-icons" id="line">
-          < HorizontalRuleIcon />
-        </div>
-        <div onClick={createcircle} className="navbar-icons" id="circle">
-          <PanoramaFishEyeIcon />
-        </div>
-        <div onClick={createrectangle} className="navbar-icons" id="rectangle">
-          <Crop169Icon />
-        </div>
-        <div className="divider-icon"> </div>
-        <div onClick={drawing} className="navbar-icons" id="pen">
-          <CreateIcon />
-        </div>
-        <div onClick={eraser} className="navbar-icons" id="erase">
-          < RemoveCircleOutlineIcon />
-        </div>
-        <div onClick={deletecanvas} className="navbar-icons" id="delete">
-          < DeleteForeverOutlinedIcon />
-        </div>
-        <div className="divider-icon"> </div>
-        <div onClick={pdf} className="navbar-icons" id="pdf">
-          <OpenInNewIcon />
-        </div>
-        <div onClick={pdf} className="navbar-icons" id="print">
-          <LocalPrintshopOutlinedIcon />
-        </div>
+        <icons.ZoomOutIcon onClick={event=>setZoomCanvas(event,"zoomout")} className="navbar-icons" id="Zoomout" />
+        <icons.ZoomInIcon onClick={event=>setZoomCanvas(event,"zoomin")}className="navbar-icons" id="ZoomIn" />
+        <div className="divider-icon"/>
+        <icons.UndoIcon onClick={undo} className="navbar-icons"  />
+        <icons.RedoIcon onClick={redo} className="navbar-icons"/>
+        <div className="divider-icon"/>
+        <icons.TextFormatIcon onClick={createtext} className="navbar-icons"/>
+        <icons.HorizontalRuleIcon onClick={createline} className="navbar-icons"/>
+        <icons.PanoramaFishEyeIcon  onClick={createcircle} className="navbar-icons"/>
+        <icons.Crop169Icon  onClick={createrectangle} className="navbar-icons"/>
+        <div className="divider-icon"/>
+        <icons.CreateIcon  onClick={drawing} className="navbar-icons"/>
+        <icons.RemoveCircleOutlineIcon   onClick={eraser} className="navbar-icons"/>
+        <icons.DeleteForeverOutlinedIcon   onClick={deletecanvas} className="navbar-icons"/>
+        <div className="divider-icon"/>
+        <icons.OpenInNewIcon    onClick={pdf} className="navbar-icons"/>
+        <icons.LocalPrintshopOutlinedIcon onClick={pdf} className="navbar-icons"/>
+
         <div className="nav-buttons">
-          <div onClick={packageCall} className="buttons" id="packages-button">
-            <div>< CardGiftcardIcon /> </div>
-            Packages
-          </div>
-          <div className="buttons" id="Save-button">
-            <div><SaveRoundedIcon /> </div>
-            Save
-          </div>
+          <button onClick={() => { setpkg(crr => !crr) }} className="buttons" id="packages-button">
+            <div>< CardGiftcardIcon /> </div>  Packages   </button>
+          <button className="buttons" id="Save-button"><div><SaveRoundedIcon /> </div> Save</button>
         </div>
       </div>
+
       <canvas id="mycanvas" />
       {popperstate &&
         <Popper selected={selected} />
@@ -428,8 +370,8 @@ function Navbar() {
       {spopperstate &&
         <SPopper selected={selected} />
       }
-      {pkg &&  
-       <Packages  state={setpkg} display={display}/>
+      {pkg &&
+        <Packages state={setpkg} display={display} />
       }
     </div>
   )

@@ -9,19 +9,20 @@ import AppleIcon from '@mui/icons-material/Apple';
 import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { fabric } from 'fabric'
 import canvasimg from './canvas.jpg'
 
 
-function Packages(props) {
+function Packages({state, display}) {
   var img1src="https://cdn.pixabay.com/photo/2017/01/08/13/58/cube-1963036__480.jpg";
   var img2="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-ZXFJNSHRAcl6RQapZYW7AaV_1vKTbuchfA&usqp=CAU";
   var img3="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSR-DPGEm00cy7EyWNa0ijcav9TPMnX9_sO352bMtDbLW11h3d0HjUe6goz58PYZtFmh8Y&usqp=CAU"
+  
   function dismisspopover() {
-    props.state(false);
+    state(false);
   }
+
   function clickimage(event){
-   props.display(event.target.src); 
+   display(event.target.src); 
   }
   
   return (
