@@ -20,12 +20,15 @@
 }
 
 
-  .list-group.list-group-flush{
+  .pops{
+  background-color: white !important;
+  width: 14rem;
   padding-bottom: 10px !important;
   border: 5px;
   border-style: solid;
   border-radius: 5%;
   border-color: darkgrey !important;
+  
   }
   
 .navbar-icons {

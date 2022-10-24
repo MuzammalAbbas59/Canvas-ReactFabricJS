@@ -4,9 +4,9 @@ import './navbar.css'
 import icons from "../Icons"
 import html2canvas from "html2canvas";
 import jsPdf from "jspdf";
-import { useMount } from './custom-hooks.js'
-import Popper from './popper';
-import Packages from './packages';
+import { useMount } from '../../custom-hooks.js'
+import Popper from '../Popper/popper';
+import Packages from '../Packages/packages';
 
 function Navbar() {
   var count = 0;
@@ -27,7 +27,7 @@ function Navbar() {
     new fabric.Canvas('mycanvas', {
       height: 1200,
       width: 800,
-      backgroundImage: "https://wallpaper.dog/large/20394818.jpg"
+      backgroundImage: "https://post.medicalnewstoday.com/wp-content/uploads/sites/3/2020/04/iStock-149046398-1-800x1200.jpg"
     })
   );
 
@@ -98,7 +98,7 @@ function Navbar() {
     canvas.on('mouse:up', function (event) {
       if (isObjectMoving) {
         isObjectMoving = false;
-        if (event.target) {
+        if (event.target && event.target.type!="image") {
           updateStack();
           setPopperstate(true);
         }
@@ -113,9 +113,12 @@ function Navbar() {
           setPopperstate(false);
         }
         else {
+          if (event.target.type != "image"){
+          console.log("event",event.target.type);
           setSelected(event.target);
           setPopperstate(crr => !crr);
           checkmovement();
+          }
         }
       }
       if (erase == false) {
@@ -158,7 +161,7 @@ function Navbar() {
     updateStack();
   }
 
-const [zoomValue,setZoomValue]=useState(null);
+const [zoomValue,setZoomValue]=useState(1);
   function setZoomCanvas(event, params) {
     if (params == "zoomin") {
       if (canvas.getZoom().toFixed(5) > 2) {
@@ -174,6 +177,8 @@ const [zoomValue,setZoomValue]=useState(null);
         alert("cannot zoomout more")
         return;
       }
+      setZoomValue(canvas.getZoom() / 1.1);
+     
       canvas.setZoom(canvas.getZoom() / 1.1);
     }
   }
@@ -250,7 +255,7 @@ const [zoomValue,setZoomValue]=useState(null);
 
   return (
     <div>
-      <div className='Container navbar '>
+      <div className='Container navbar'>
         <icons.ZoomOutIcon onClick={event => setZoomCanvas(event, "zoomout")} className="navbar-icons" id="Zoomout" />
         <icons.ZoomInIcon onClick={event => setZoomCanvas(event, "zoomin")} className="navbar-icons" id="ZoomIn" />
         <div className="divider-icon" />
@@ -273,7 +278,7 @@ const [zoomValue,setZoomValue]=useState(null);
             <icons.CardGiftcardIcon />  Packages </button>
           <button className="buttons" id="Save-button"><icons.SaveRoundedIcon />Save</button>
         </div>
-      </div>
+        </div>
       <canvas id="mycanvas" />
       {popperstate && <Popper selected={selected} zoom={zoomValue} />}
       {packageState && <Packages state={setPackageState} canvas={canvas} />}
