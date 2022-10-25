@@ -10,7 +10,8 @@ import Packages from '../Packages/packages';
 
 function Navbar() {
   var count = 0;
-  let [stack, setStack] = useState([]);
+  var stack =[];
+  const [stackState,setStackState]=useState(null);
   var flag = false;
   let [canvas, setCanvas] = useState(null);
   let [selected, setSelected] = useState(null);
@@ -38,9 +39,7 @@ function Navbar() {
     }
     flag = true;
     var json = canvas.toJSON();
-    if (json != stack[stack.legth - 1]) {
-      setStack([...stack, json])
-    }
+    stack.push(json);
     count = stack.length - 1;
   }
 
@@ -95,12 +94,12 @@ function Navbar() {
       setPopperstate(false);
     });
 
-    canvas.on('mouse:up', function (event) {
+    canvas.on('object:modified', function (event) {
       if (isObjectMoving) {
         isObjectMoving = false;
         if (event.target && event.target.type!="image") {
           updateStack();
-          setPopperstate(true);
+          // setPopperstate(true);
         }
       }
     });
@@ -113,17 +112,17 @@ function Navbar() {
           setPopperstate(false);
         }
         else {
-          if (event.target.type != "image"){
-          console.log("event",event.target.type);
+          if (event.target.type != "group"){
           setSelected(event.target);
-          setPopperstate(crr => !crr);
+          // setPopperstate(true);
           checkmovement();
           }
-        }
+          }
       }
       if (erase == false) {
         canvas.on('mouse:down', handleClick);
       }
+      
       else {
         canvas.off('mouse:down');
       }
@@ -203,7 +202,6 @@ const [zoomValue,setZoomValue]=useState(1);
       else {
         canvas.off('mouse:down');
         alert("Erasing mode is off");
-
       }
     }
   }, [erase])
@@ -215,16 +213,16 @@ const [zoomValue,setZoomValue]=useState(1);
     setisDraw(crr => !crr);
   }
 
+  const [packageState, setPackageState] = useState(false);
+
   function createrectangle() {
     canvas.isDrawingMode = false;
     var rectangle = new fabric.Rect({
       width: 200,
-      selection: true,
       height: 100,
       fill: '#000000',
-      transparentCorners: false,
       stroke: '#ff0000',
-      strokeWidth: 3
+      strokeWidth: 4,
     });
     canvas.add(rectangle);
     updateStates();
@@ -240,9 +238,137 @@ const [zoomValue,setZoomValue]=useState(1);
     updateStates();
   }
 
+   var items;
+  var ungroup = function (group) {
+    items = group._objects;
+    group._restoreObjectsState();
+    canvas.remove(group);
+    for (var i = 0; i < items.length; i++) {
+        canvas.add(items[i]);
+    }
+};
 
-  const [packageState, setPackageState] = useState(false);
+  function createNotes() {
+    // var rectangle = new fabric.Rect({
+    //   width: 400,
+    //   height: 100,
+    //   fill: '#ffc',
+    // });
+
+    // let text = new fabric.Textbox('So we are',
+    //   {
+    //     width: 400,
+    //     editable: true,
+    //     fill: '#000000',
+    //     fontSize:25,
+    //     textAlign:"center",
+    //   });
+
+    // var group = new fabric.Group([rectangle, text], {
+    //   left: 100,
+    //   top: 25,
+    //   subTargetCheck: true
+
+    // });
+    // canvas.add(group);
+    //   group.on('mousedown', function (obj) {
+    //       ungroup(group);
+    //   });
+
+    //   text.on("editing:exited",function (Obj){
+    //    group = new fabric.Group([rectangle, text]);
+    //    canvas.add(group);
+    //   })
+
+
+    let textRectangle = new fabric.Rect({
+      width:180,
+      height:180,
+      fill: '#FBC970',
+      // originX: 'center',
+      // originY: 'center',
+    });
+    
+    let text = new fabric.Textbox("Notes", {
+      // originX: 'center',
+      // originY: 'center',
+      // textAlign: 'center',
+      width:180,
+      fontSize: 22,
+      hasControls:false,
+    })
+    
+    let group = new fabric.Group([textRectangle, text], {
+       left: 100,
+      top: 100,
+      // originX: 'center',
+      // originY: 'center',
+    });
+    
+    group.on('mousedblclick', () => {
+      // textForEditing is temporary obj, 
+      // and will be removed after editing
+      let textForEditing = new fabric.Textbox(text.text, {
+        // originX: 'center',
+        // originY: 'center',
+        // textAlign: text.textAlign,
+        fontSize: text.fontSize,
+        
+        left: group.left,
+        top: group.top,
+      })
+      
+      // hide group inside text
+      text.visible = false;
+      // note important, text cannot be hidden without this
+      group.addWithUpdate();
+      
+      textForEditing.visible = true;
+      // do not give controls, do not allow move/resize/rotation on this 
+      textForEditing.hasConstrols = false;
+  
+      
+      // now add this temporary obj to canvas
+      canvas.add(textForEditing);
+      canvas.setActiveObject(textForEditing);
+      // make the cursor showing
+      textForEditing.enterEditing();
+      textForEditing.selectAll();
+      
+      
+      // editing:exited means you click outside of the textForEditing
+      textForEditing.on('editing:exited', () =>{
+        let newVal = textForEditing.text;
+        let oldVal = text.text;
+        
+        // then we check if text is changed
+        if (newVal !== oldVal) {
+          text.set({
+            text: newVal,
+            visible: true,
+          })
+          
+          // comment before, you must call this
+          group.addWithUpdate();
+          
+          // we do not need textForEditing anymore
+          textForEditing.visible = false;
+          canvas.remove(textForEditing);
+          
+          // optional, buf for better user experience
+          canvas.setActiveObject(group);
+        }
+      })
+    })
+    
+    canvas.add(group);
+  }
+  
+  
+
+
   function createtext() {
+    canvas.isDrawingMode = false;
     let text = new fabric.Textbox('TEXT',
       {
         width: 100,
@@ -250,7 +376,6 @@ const [zoomValue,setZoomValue]=useState(1);
         fill: '#000000'
       });
     canvas.add(text);
-    updateStates();
   }
 
   return (
@@ -263,6 +388,8 @@ const [zoomValue,setZoomValue]=useState(1);
         <icons.RedoIcon onClick={redo} className="navbar-icons" />
         <div className="divider-icon" />
         <icons.TextFormatIcon onClick={createtext} className="navbar-icons" />
+        <icons.TextSnippetIcon onClick={createNotes} className="navbar-icons" />
+        
         <icons.HorizontalRuleIcon onClick={createline} className="navbar-icons" />
         <icons.PanoramaFishEyeIcon onClick={createcircle} className="navbar-icons" />
         <icons.Crop169Icon onClick={createrectangle} className="navbar-icons" />

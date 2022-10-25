@@ -1,6 +1,7 @@
 import "react-color-palette/lib/css/styles.css";
 import * as React from 'react';
 import { fabric } from 'fabric';
+import { useEffect } from "react";
 
 function Packages({ state, canvas }) {
   var img1src = "https://cdn.pixabay.com/photo/2017/01/08/13/58/cube-1963036__480.jpg";
@@ -8,6 +9,8 @@ function Packages({ state, canvas }) {
   var img3 = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSR-DPGEm00cy7EyWNa0ijcav9TPMnX9_sO352bMtDbLW11h3d0HjUe6goz58PYZtFmh8Y&usqp=CAU"
 
   function displayImageOnClick(event) {
+    console.log(event.target);
+    if(event.target.className=="package-image"){
     fabric.Image.fromURL(event.target.src, function (myImg) {
       var img1 = myImg.set({ left: 50, top: 20 });
       img1.scaleToWidth(50)
@@ -15,14 +18,18 @@ function Packages({ state, canvas }) {
       canvas.add(img1);
     });
   }
+  }
+  
+useEffect(()=>{
 
-  function imageDropOnDrag(e){
-      fabric.Image.fromURL(e.target.src, function (myImg) {
-        var img1 = myImg.set({ left: e.clientX, top:e.clientY});
-        img1.scaleToWidth(30);
-        img1.scaleToHeight(30);
-        canvas.add(img1);
-    })  
+  const handleDrop = event => {
+        console.log(event);  
+      }
+canvas.on("dragover",handleDrop)
+    },[canvas]);
+
+  function imageDropOnDrag(e) { 
+    e.dataTransfer.setData("id", e.target.id);
   }
 
   return (
@@ -35,17 +42,20 @@ function Packages({ state, canvas }) {
         <button onClick={e => state(false)} className='heading2' id="cross-button" >X </button>
       </div>
       <div className='heading1' style={{ position: 'absolute' }} sx={{ fontSize: 24 }} component="div">
-        <img onClick={displayImageOnClick} draggable="true" src={img1src} onDragEnd={event=>imageDropOnDrag(event)} 
-         height='20px' />
+        <img onClick={displayImageOnClick} draggable="true" src={img1src} className="package-image"
+          height='20px' />
       </div >
       <p className='heading3' id="cross-button" >One</p>
       <div className='heading1' style={{ position: 'absolute' }} sx={{ fontSize: 18 }} component="div">
-        <img onClick={displayImageOnClick} draggable="true"  src={img2} onDragEnd={event=>imageDropOnDrag(event)} height='20px' />
+        <img onClick={displayImageOnClick} draggable="true" src={img2} className="package-image"
+         onDragStart={event => imageDropOnDrag(event)} 
+         height='20px' />
       </div>
       <p className='heading3' id="cross-button" >Two</p>
       <div className='heading1' style={{ position: 'absolute' }} sx={{ fontSize: 18 }} component="div">
-        <img onClick={displayImageOnClick} draggable="true" onDragEnd={event=>imageDropOnDrag(event)}
-        src={img3} height='20px' />
+        <img onClick={displayImageOnClick} draggable="true" className="package-image"
+        // onDragStart={event => imageDropOnDrag(event)}
+          src={img3} height='20px' />
       </div>
       <p className='heading3' id="cross-button" >Teen</p>
     </div>

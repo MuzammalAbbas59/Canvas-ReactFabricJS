@@ -13,6 +13,6 @@ import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
-
-export default { CardGiftcardIcon, SaveRoundedIcon, RemoveCircleOutlineIcon, ZoomInIcon, ZoomOutIcon, UndoIcon, RedoIcon, TextFormatIcon, PanoramaFishEyeIcon, Crop169Icon, CreateIcon, DeleteForeverOutlinedIcon, LocalPrintshopOutlinedIcon, OpenInNewIcon, HorizontalRuleIcon }
+export default {TextSnippetIcon, CardGiftcardIcon, SaveRoundedIcon, RemoveCircleOutlineIcon, ZoomInIcon, ZoomOutIcon, UndoIcon, RedoIcon, TextFormatIcon, PanoramaFishEyeIcon, Crop169Icon, CreateIcon, DeleteForeverOutlinedIcon, LocalPrintshopOutlinedIcon, OpenInNewIcon, HorizontalRuleIcon }

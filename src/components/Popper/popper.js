@@ -2,15 +2,24 @@ import "react-color-palette/lib/css/styles.css";
 import '../navbar/navbar.css'
 import * as React from 'react';
 import Slider from '@mui/material/Slider';
-import { useState} from 'react';
+import { useState,useEffect} from 'react';
 
-function Popper(props) {
-  var FillColor = props.selected?.fill || '#000000';
+function Popper({selected,zoom}) {
+  console.log("select",selected);
+  var FillColor = selected?.fill || '#000000';
   var opacityyy = FillColor.substring(7, 9);
   var FillOpacity = parseInt(opacityyy, 16);
   if (!FillOpacity) {
     FillOpacity = 254;
   }
+  
+useEffect(()=>{
+setColor(FillColor.substring(0,7));
+setStrokeWidth(selected.strokeWidth);
+setOpacity(FillOpacity);
+setStroke(selected.stroke);
+},[selected])
+  
   const [color, setColor] = useState(FillColor.substring(0, 7));
   const [opacity, setOpacity] = useState(FillOpacity);
   const convertHexToRGBA = (hexCode, opacity = 1) => {
@@ -52,8 +61,8 @@ function Popper(props) {
 
   function setColorOpacity(colorobj, opacityobj) {
     var newcol = convertHexToRGBA(colorobj.toString(), opacityobj)
-    props.selected.set({ "fill": (rgbaToHex(newcol)) });
-    props.selected.canvas.renderAll();
+    selected.set({ "fill": (rgbaToHex(newcol)) });
+    selected.canvas.renderAll();
   }
 
   function handleChangeColor(event) {
@@ -66,19 +75,26 @@ function Popper(props) {
     setColorOpacity(color, (opacity / 255));
   }
 
-  const [stroke, setStroke] = useState(props.selected.stroke);
-  function handleChangeStroke(event) {
+ 
+  const [strokeWidth,setStrokeWidth]=useState(selected.strokeWidth);
+  function handleChangeStrokeWidth(event) {
+    setStrokeWidth(event.target.value); 
+    selected.set({ "strokeWidth": parseInt(strokeWidth)});
+    selected.canvas.renderAll();
+  }
 
-    setStroke(event.target.value);
-    props.selected.set({ "stroke": stroke });
-    props.selected.canvas.renderAll();
+  const [stroke, setStroke] = useState(selected.stroke);
+  function handleChangeStroke(event) {
+    setStroke(event.target.value);    
+    selected.set({ "stroke": stroke });
+    selected.canvas.renderAll();
   }
 
   return (
     <div className='pops' style={{
-      top: (props.selected.top) * (props.zoom) + "px", left: ((props.selected.left + props.selected.width + 70) * (props.zoom)) + 'px', position: "absolute"
+      top: (selected.top) * (zoom) + "px", left: ((selected.left + selected.width + 70) * (zoom)) + 'px', position: "absolute"
     }}>
-      {props?.selected?.type != "path" &&
+      {selected?.type != "path" &&
         <div>
           <div>
             <label>Color:</label> <br />
@@ -101,6 +117,23 @@ function Popper(props) {
       <label>Stroke:</label>
       <input style={{ width: 200 }} type="color"
         onChange={handleChangeStroke} value={stroke} ></input>
+      
+      <label>Stroke Width:</label>
+      <input style={{ width: 200 }} type="range" min={1} max={100}
+        onChange={handleChangeStrokeWidth} value={strokeWidth} ></input>
+
+
+
+{/* <Slider sx={{ maxWidth: 200 }}
+              aria-label="Stroke Width"
+              value={strokeWidth}
+              max={100}
+              min={1}
+              step={1}
+              onChange={handleChangeStrokeWidth}
+              color="primary"
+            /> <br /> */}
+
     </div>
 
   );
