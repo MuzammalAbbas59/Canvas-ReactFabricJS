@@ -10,8 +10,8 @@ import Packages from '../Packages/packages';
 
 function Navbar() {
   var count = 0;
-  var stack =[];
-  const [stackState,setStackState]=useState(null);
+  var stack = [];
+  const [stackState, setStackState] = useState(null);
   var flag = false;
   let [canvas, setCanvas] = useState(null);
   let [selected, setSelected] = useState(null);
@@ -97,7 +97,7 @@ function Navbar() {
     canvas.on('object:modified', function (event) {
       if (isObjectMoving) {
         isObjectMoving = false;
-        if (event.target && event.target.type!="image") {
+        if (event.target && event.target.type != "image") {
           updateStack();
           // setPopperstate(true);
         }
@@ -112,17 +112,17 @@ function Navbar() {
           setPopperstate(false);
         }
         else {
-          if (event.target.type != "group"){
-          setSelected(event.target);
-          // setPopperstate(true);
-          checkmovement();
+          if (event.target.type != "group") {
+            setSelected(event.target);
+            // setPopperstate(true);
+            checkmovement();
           }
-          }
+        }
       }
       if (erase == false) {
         canvas.on('mouse:down', handleClick);
       }
-      
+
       else {
         canvas.off('mouse:down');
       }
@@ -160,7 +160,7 @@ function Navbar() {
     updateStack();
   }
 
-const [zoomValue,setZoomValue]=useState(1);
+  const [zoomValue, setZoomValue] = useState(1);
   function setZoomCanvas(event, params) {
     if (params == "zoomin") {
       if (canvas.getZoom().toFixed(5) > 2) {
@@ -169,7 +169,7 @@ const [zoomValue,setZoomValue]=useState(1);
       }
       setZoomValue(canvas.getZoom() * 1.1);
       canvas.setZoom(canvas.getZoom() * 1.1);
-     
+
     }
     else {
       if (canvas.getZoom().toFixed(5) <= 0.33) {
@@ -177,7 +177,7 @@ const [zoomValue,setZoomValue]=useState(1);
         return;
       }
       setZoomValue(canvas.getZoom() / 1.1);
-     
+
       canvas.setZoom(canvas.getZoom() / 1.1);
     }
   }
@@ -223,7 +223,7 @@ const [zoomValue,setZoomValue]=useState(1);
       fill: '#000000',
       stroke: '#ff0000',
       strokeWidth: 4,
-      selectable:false,
+      selectable: false,
     });
     canvas.add(rectangle);
     updateStates();
@@ -239,112 +239,87 @@ const [zoomValue,setZoomValue]=useState(1);
     updateStates();
   }
 
-  
+
   function createNotes() {
-    
+
     let textRectangle = new fabric.Rect({
-      width:180,
-      height:180,
+      width: 180,
+      height: 180,
       fill: '#FBC970',
       originX: 'center',
       originY: 'center',
     });
-    
+
     let text = new fabric.Textbox("Notes", {
       originX: 'center',
       originY: 'center',
       textAlign: 'center',
-      width:170,
-      hasControls:false,
+      width: 170,
+      hasControls: false,
       splitByGrapheme: true,
-      fontSize:40
+      fontSize: 40
     })
-    
+
     let group = new fabric.Group([textRectangle, text], {
       left: 100,
       top: 100,
       originX: 'center',
       originY: 'center',
     });
-    
-    group.on('mousedblclick', (e) => {
-      // textForEditing is temporary obj, 
-      // and will be removed after editing
-    
-      group.selectable=false;
 
+    group.on('mousedblclick', (e) => {
+      group.selectable = false;
+      debugger;
       let textForEditing = new fabric.Textbox(text.text, {
         originX: 'center',
         originY: 'center',
-        width:170,
+        width: 170,
         splitByGrapheme: true,
         textAlign: text.textAlign,
-        fontSize: text.fontSize,
+        fontSize:text.fontSize,
         left: group.left,
         top: group.top,
-        hasControls:false,
+        hasControls: false,
         lockMovementY: true,
         lockMovementX: true,
-        hasBorders:false,
+        hasBorders: false,
+        scaleX:group.zoomX ,
+        scaleY:group.zoomY
       })
 
-      textForEditing.on('changed', function(e) {
-        if (textForEditing.height>textRectangle.height-10){
-          textForEditing.fontSize=textForEditing.fontSize-2;
-        }      
-    });
+      textForEditing.on('changed', function (e) {
+        if (textForEditing.height > textRectangle.height - 10) {
+          textForEditing.fontSize = textForEditing.fontSize - 2;
+        }
+      });
 
- 
-      // hide group inside text
       text.visible = false;
-      // note important, text cannot be hidden without this
       group.addWithUpdate();
       textForEditing.visible = true;
-      // do not give controls, do not allow move/resize/rotation on this 
       textForEditing.hasConstrols = false;
-      
-      // now add this temporary obj to canvas
       canvas.add(textForEditing);
       canvas.setActiveObject(textForEditing);
-      // make the cursor showing 
       textForEditing.enterEditing();
       textForEditing.selectAll();
-      
-      
-      // editing:exited means you click outside of the textForEditing
-      textForEditing.on('editing:exited', () =>{
+
+      textForEditing.on('editing:exited', () => {
+        text.set({
+          text: textForEditing.text,
+          fontSize: textForEditing.fontSize,
+          visible: true,
+        })
         
-        // console.log("hui");
-        // let newVal = textForEditing.text;
-        // let oldVal = text.text;
-        // let newfont=textForEditing.fontSize;
-       
-        // // then we check if text is changed
-        // // if (newVal !== oldVal) {
-          text.set({
-            text: textForEditing.text,
-            fontSize:textForEditing.fontSize,
-            visible: true,
-          })
-          
-          // comment before, you must call this
-          group.addWithUpdate();  
-          // we do not need textForEditing anymore
-          group.selectable=true;
-          textForEditing.visible = false;
-          canvas.remove(textForEditing);
-          // optional, buf for better user experience
-           canvas.setActiveObject(group);
-        // }
-        
+        group.addWithUpdate();
+        group.selectable = true;
+        textForEditing.visible = false;
+        canvas.remove(textForEditing);
+        canvas.setActiveObject(group);
       })
     })
-    
-   
     canvas.add(group);
   }
-  
-  
+
+
 
 
   function createtext() {
@@ -369,7 +344,7 @@ const [zoomValue,setZoomValue]=useState(1);
         <div className="divider-icon" />
         <icons.TextFormatIcon onClick={createtext} className="navbar-icons" />
         <icons.TextSnippetIcon onClick={createNotes} className="navbar-icons" />
-        
+
         <icons.HorizontalRuleIcon onClick={createline} className="navbar-icons" />
         <icons.PanoramaFishEyeIcon onClick={createcircle} className="navbar-icons" />
         <icons.Crop169Icon onClick={createrectangle} className="navbar-icons" />
@@ -385,7 +360,7 @@ const [zoomValue,setZoomValue]=useState(1);
             <icons.CardGiftcardIcon />  Packages </button>
           <button className="buttons" id="Save-button"><icons.SaveRoundedIcon />Save</button>
         </div>
-        </div>
+      </div>
       <canvas id="mycanvas" />
       {popperstate && <Popper selected={selected} zoom={zoomValue} />}
       {packageState && <Packages state={setPackageState} canvas={canvas} />}
