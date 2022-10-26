@@ -146,8 +146,8 @@ function Navbar() {
     var circle = new fabric.Circle({
       radius: 45,
       fill: '#0000FF',
-      left: 100,
-      top: 100,
+      left:100,
+      top:  (window.pageYOffset)+100,
       stroke: "#7DF9FF",
     });
     canvas.add(circle);
@@ -233,7 +233,8 @@ function Navbar() {
     canvas.isDrawingMode = false;
     var line = new fabric.Line([30, 10, 20, 100], {
       stroke: '#0000FF',
-      width: 30
+      width: 30,
+     top:(window.pageYOffset)+40,
     });
     canvas.add(line);
     updateStates();
@@ -262,7 +263,7 @@ function Navbar() {
 
     let group = new fabric.Group([textRectangle, text], {
       left: 100,
-      top: 100,
+      top:(window.pageYOffset)+200,
       originX: 'center',
       originY: 'center',
     });
