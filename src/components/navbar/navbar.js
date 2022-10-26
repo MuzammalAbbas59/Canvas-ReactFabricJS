@@ -223,6 +223,7 @@ const [zoomValue,setZoomValue]=useState(1);
       fill: '#000000',
       stroke: '#ff0000',
       strokeWidth: 4,
+      selectable:false,
     });
     canvas.add(rectangle);
     updateStates();
@@ -238,129 +239,108 @@ const [zoomValue,setZoomValue]=useState(1);
     updateStates();
   }
 
-   var items;
-  var ungroup = function (group) {
-    items = group._objects;
-    group._restoreObjectsState();
-    canvas.remove(group);
-    for (var i = 0; i < items.length; i++) {
-        canvas.add(items[i]);
-    }
-};
-
+  
   function createNotes() {
-    // var rectangle = new fabric.Rect({
-    //   width: 400,
-    //   height: 100,
-    //   fill: '#ffc',
-    // });
-
-    // let text = new fabric.Textbox('So we are',
-    //   {
-    //     width: 400,
-    //     editable: true,
-    //     fill: '#000000',
-    //     fontSize:25,
-    //     textAlign:"center",
-    //   });
-
-    // var group = new fabric.Group([rectangle, text], {
-    //   left: 100,
-    //   top: 25,
-    //   subTargetCheck: true
-
-    // });
-    // canvas.add(group);
-    //   group.on('mousedown', function (obj) {
-    //       ungroup(group);
-    //   });
-
-    //   text.on("editing:exited",function (Obj){
-    //    group = new fabric.Group([rectangle, text]);
-    //    canvas.add(group);
-    //   })
-
-
+    
     let textRectangle = new fabric.Rect({
       width:180,
       height:180,
       fill: '#FBC970',
-      // originX: 'center',
-      // originY: 'center',
+      originX: 'center',
+      originY: 'center',
     });
     
     let text = new fabric.Textbox("Notes", {
-      // originX: 'center',
-      // originY: 'center',
-      // textAlign: 'center',
-      width:180,
-      fontSize: 22,
+      originX: 'center',
+      originY: 'center',
+      textAlign: 'center',
+      width:170,
       hasControls:false,
+      splitByGrapheme: true,
+      fontSize:40
     })
     
     let group = new fabric.Group([textRectangle, text], {
-       left: 100,
+      left: 100,
       top: 100,
-      // originX: 'center',
-      // originY: 'center',
+      originX: 'center',
+      originY: 'center',
     });
     
-    group.on('mousedblclick', () => {
+    group.on('mousedblclick', (e) => {
       // textForEditing is temporary obj, 
       // and will be removed after editing
+    
+      group.selectable=false;
+
       let textForEditing = new fabric.Textbox(text.text, {
-        // originX: 'center',
-        // originY: 'center',
-        // textAlign: text.textAlign,
+        originX: 'center',
+        originY: 'center',
+        width:170,
+        splitByGrapheme: true,
+        textAlign: text.textAlign,
         fontSize: text.fontSize,
-        
         left: group.left,
         top: group.top,
+        hasControls:false,
+        lockMovementY: true,
+        lockMovementX: true,
+        hasBorders:false,
       })
-      
+
+      textForEditing.on('changed', function(e) {
+        if (textForEditing.height>textRectangle.height-10){
+          textForEditing.fontSize=textForEditing.fontSize-2;
+        }      
+    });
+
+ 
       // hide group inside text
       text.visible = false;
       // note important, text cannot be hidden without this
       group.addWithUpdate();
-      
       textForEditing.visible = true;
       // do not give controls, do not allow move/resize/rotation on this 
       textForEditing.hasConstrols = false;
-  
       
       // now add this temporary obj to canvas
       canvas.add(textForEditing);
       canvas.setActiveObject(textForEditing);
-      // make the cursor showing
+      // make the cursor showing 
       textForEditing.enterEditing();
       textForEditing.selectAll();
       
       
       // editing:exited means you click outside of the textForEditing
       textForEditing.on('editing:exited', () =>{
-        let newVal = textForEditing.text;
-        let oldVal = text.text;
         
-        // then we check if text is changed
-        if (newVal !== oldVal) {
+        // console.log("hui");
+        // let newVal = textForEditing.text;
+        // let oldVal = text.text;
+        // let newfont=textForEditing.fontSize;
+       
+        // // then we check if text is changed
+        // // if (newVal !== oldVal) {
           text.set({
-            text: newVal,
+            text: textForEditing.text,
+            fontSize:textForEditing.fontSize,
             visible: true,
           })
           
           // comment before, you must call this
-          group.addWithUpdate();
-          
+          group.addWithUpdate();  
           // we do not need textForEditing anymore
+          group.selectable=true;
           textForEditing.visible = false;
           canvas.remove(textForEditing);
-          
           // optional, buf for better user experience
-          canvas.setActiveObject(group);
-        }
+           canvas.setActiveObject(group);
+        // }
+        
       })
     })
     
+   
     canvas.add(group);
   }
   
