@@ -269,7 +269,6 @@ function Navbar() {
 
     group.on('mousedblclick', (e) => {
       group.selectable = false;
-      debugger;
       let textForEditing = new fabric.Textbox(text.text, {
         originX: 'center',
         originY: 'center',
@@ -308,7 +307,7 @@ function Navbar() {
           fontSize: textForEditing.fontSize,
           visible: true,
         })
-        
+
         group.addWithUpdate();
         group.selectable = true;
         textForEditing.visible = false;
@@ -335,7 +334,7 @@ function Navbar() {
 
   return (
     <div>
-      <div className='Container navbar'>
+      <div className='Container navbar' style={{position:'fixed',zIndex:1}}>
         <icons.ZoomOutIcon onClick={event => setZoomCanvas(event, "zoomout")} className="navbar-icons" id="Zoomout" />
         <icons.ZoomInIcon onClick={event => setZoomCanvas(event, "zoomin")} className="navbar-icons" id="ZoomIn" />
         <div className="divider-icon" />
