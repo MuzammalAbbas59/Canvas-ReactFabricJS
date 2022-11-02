@@ -79,7 +79,7 @@ setStroke(selected.stroke);
   const [strokeWidth,setStrokeWidth]=useState(selected.strokeWidth);
   function handleChangeStrokeWidth(event) {
     setStrokeWidth(event.target.value); 
-    selected.set({ "strokeWidth": parseInt(strokeWidth)});
+    selected.set({ "strokeWidth": parseInt(event.target.value)});
     selected.canvas.renderAll();
   }
 

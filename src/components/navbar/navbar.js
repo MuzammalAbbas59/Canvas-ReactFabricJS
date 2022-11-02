@@ -114,7 +114,7 @@ function Navbar() {
         else {
           if (event.target.type != "group") {
             setSelected(event.target);
-            // setPopperstate(true);
+            setPopperstate(true);
             checkmovement();
           }
         }
@@ -146,8 +146,8 @@ function Navbar() {
     var circle = new fabric.Circle({
       radius: 45,
       fill: '#0000FF',
-      left:100,
-      top:  (window.pageYOffset)+100,
+      left: 100,
+      top: (window.pageYOffset) + 100,
       stroke: "#7DF9FF",
     });
     canvas.add(circle);
@@ -220,6 +220,7 @@ function Navbar() {
     var rectangle = new fabric.Rect({
       width: 200,
       height: 100,
+      top: (window.pageYOffset) + 40,
       fill: '#000000',
       stroke: '#ff0000',
       strokeWidth: 4,
@@ -230,94 +231,93 @@ function Navbar() {
   }
 
   function createline() {
+
     canvas.isDrawingMode = false;
     var line = new fabric.Line([30, 10, 20, 100], {
       stroke: '#0000FF',
       width: 30,
-     top:(window.pageYOffset)+40,
+      top: (window.pageYOffset) + 40,
     });
     canvas.add(line);
     updateStates();
   }
 
-
+  const [font, setFont] = useState();
   function createNotes() {
-
-    let textRectangle = new fabric.Rect({
-      width: 180,
-      height: 180,
-      fill: '#FBC970',
-      originX: 'center',
-      originY: 'center',
+    var textRectangle = new fabric.Rect({
+      width: 100,
+      height: 100,
+      fill: "#FBC970",
+      originX: "center",
+      originY: "center",
     });
-
-    let text = new fabric.Textbox("Notes", {
-      originX: 'center',
-      originY: 'center',
-      textAlign: 'center',
-      width: 170,
+    var text = new fabric.Textbox("Notes", {
+      originX: "center",
+      originY: "center",
+      textAlign: "center",
+      width: 90,
       hasControls: false,
       splitByGrapheme: true,
-      fontSize: 40
-    })
-
-    let group = new fabric.Group([textRectangle, text], {
+      fontSize: 30,
+      lineHeight:1,
+    });
+    var group = new fabric.Group([textRectangle, text], {
       left: 100,
-      top:(window.pageYOffset)+200,
-      originX: 'center',
-      originY: 'center',
+      top: window.pageYOffset + 200,
+      originX: "center",
+      originY: "center",
+      type: "notes",
     });
 
-    group.on('mousedblclick', (e) => {
+    group.on("mousedblclick", () => {
       group.selectable = false;
-      let textForEditing = new fabric.Textbox(text.text, {
-        originX: 'center',
-        originY: 'center',
-        width: 170,
-        splitByGrapheme: true,
-        textAlign: text.textAlign,
-        fontSize:text.fontSize,
-        left: group.left,
-        top: group.top,
-        hasControls: false,
-        lockMovementY: true,
-        lockMovementX: true,
-        hasBorders: false,
-        scaleX:group.zoomX ,
-        scaleY:group.zoomY
-      })
-
-      textForEditing.on('changed', function (e) {
-        if (textForEditing.height > textRectangle.height - 10) {
-          textForEditing.fontSize = textForEditing.fontSize - 2;
-        }
+      var scaling = group.getScaledWidth() / 100;
+      var textForEditing;
+      text.clone(function (clonedObj) {
+        clonedObj.set({
+          left: group.left,
+          top: group.top,
+          lockMovementY: true,
+          lockMovementX: true,
+          hasBorders: false,
+          scaleX: scaling,
+          scaleY: scaling,
+        });
+        textForEditing = clonedObj;
+      });
+      
+      textForEditing.on("changed", function (e) {
+       if (textForEditing.height < textRectangle.height - 10 && textForEditing.fontSize <30 ) {    
+        textForEditing.fontSize = textForEditing.fontSize + ((textRectangle.height - 15 - textForEditing.height) / (20))
+       }
+       if (textForEditing.height > textRectangle.height - 10 ) { 
+        textForEditing.fontSize *= (textRectangle.height-10) / (textForEditing.height + 1);
+       }
+    
       });
 
       text.visible = false;
       group.addWithUpdate();
-      textForEditing.visible = true;
-      textForEditing.hasConstrols = false;
       canvas.add(textForEditing);
       canvas.setActiveObject(textForEditing);
       textForEditing.enterEditing();
       textForEditing.selectAll();
-
-      textForEditing.on('editing:exited', () => {
+      textForEditing.on("editing:exited", () => {
+       
+        debugger;
         text.set({
           text: textForEditing.text,
           fontSize: textForEditing.fontSize,
           visible: true,
-        })
-
+        });
         group.addWithUpdate();
         group.selectable = true;
-        textForEditing.visible = false;
-        canvas.remove(textForEditing);
         canvas.setActiveObject(group);
-      })
-    })
+        canvas.remove(textForEditing);
+      });
+    });
     canvas.add(group);
-  }
+  };
 
 
 
@@ -328,14 +328,15 @@ function Navbar() {
       {
         width: 100,
         editable: true,
-        fill: '#000000'
+        fill: '#000000',
+        top: 200,
       });
     canvas.add(text);
   }
 
   return (
     <div>
-      <div className='Container navbar' style={{position:'fixed',zIndex:1}}>
+      <div className='Container navbar' style={{ position: 'fixed', zIndex: 1 }}>
         <icons.ZoomOutIcon onClick={event => setZoomCanvas(event, "zoomout")} className="navbar-icons" id="Zoomout" />
         <icons.ZoomInIcon onClick={event => setZoomCanvas(event, "zoomin")} className="navbar-icons" id="ZoomIn" />
         <div className="divider-icon" />
