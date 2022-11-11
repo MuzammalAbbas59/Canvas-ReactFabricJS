@@ -15,22 +15,31 @@
     padding: 0px;
     color: rgb(88, 79, 79);
 }
-#mycanvas{
+
+#mycanvas {
     z-index: 0;
+    overflow-y: scroll;
+    overflow: hidden;
+    width: 400px;
+    height: 80vh;
+}
+.mycontainer {
+    overflow-y: scroll;
+    width: 800px;
+    height: 80vh;
 }
 
+.pops {
+    background-color: white !important;
+    width: 14rem;
+    padding-bottom: 10px !important;
+    border: 5px;
+    border-style: solid;
+    border-radius: 5%;
+    border-color: darkgrey !important;
 
-  .pops{
-  background-color: white !important;
-  width: 14rem;
-  padding-bottom: 10px !important;
-  border: 5px;
-  border-style: solid;
-  border-radius: 5%;
-  border-color: darkgrey !important;
-  
-  }
-  
+}
+
 .navbar-icons {
     margin-left: 4px;
     height: 20px;
@@ -49,30 +58,32 @@
     width: 80px;
 }
 
-.head{
+.head {
     display: flex;
-     padding-top: 0px;
+    padding-top: 0px;
 }
 
-.heading1{
-     margin-left: 10px; 
-     margin-top: 0px;
-     font-size: larger;
+.heading1 {
+    margin-left: 10px;
+    margin-top: 0px;
+    font-size: larger;
 }
 
-.heading2{
+.heading2 {
     margin-left: 80px;
     justify-content: center;
     height: 20px;
     margin-top: 4px;
 }
-.heading3{
+
+.heading3 {
     margin-left: 150px;
     justify-content: center;
     height: 20px;
     margin-top: 4px;
 }
-.buttons{
+
+.buttons {
     display: flex;
     margin-top: 2px;
     justify-content: center;
@@ -83,10 +94,10 @@
     font-size: 13px;
     height: 35px;
     color: white;
-   
+
 }
 
 #packages-button {
     background-color: rgb(24, 45, 53);
-     width: 100px;  
+    width: 100px;
 }
