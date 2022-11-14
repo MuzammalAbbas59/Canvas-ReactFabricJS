@@ -9,7 +9,6 @@ function Packages({ state, canvas }) {
   var img3 = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSR-DPGEm00cy7EyWNa0ijcav9TPMnX9_sO352bMtDbLW11h3d0HjUe6goz58PYZtFmh8Y&usqp=CAU"
 
   function displayImageOnClick(event) {
-    console.log(event.target);
     if(event.target.className=="package-image"){
     fabric.Image.fromURL(event.target.src, function (myImg) {
       var img1 = myImg.set({ left: 50, top: 20 });

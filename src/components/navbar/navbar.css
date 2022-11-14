@@ -23,9 +23,11 @@
     width: 400px;
     height: 80vh;
 }
+
+
 .mycontainer {
     overflow-y: scroll;
-    width: 800px;
+    width: 900px;
     height: 80vh;
 }
 

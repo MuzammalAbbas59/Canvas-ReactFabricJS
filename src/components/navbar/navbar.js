@@ -7,8 +7,7 @@ import jsPdf from "jspdf";
 import { useMount } from '../../custom-hooks.js'
 import Popper from '../Popper/popper';
 import Packages from '../Packages/packages';
-import { CollectionsBookmarkRounded } from '@mui/icons-material';
-
+import bgImage from './bg.png'
 function Navbar() {
   var count = 0;
   var stack = [];
@@ -23,16 +22,30 @@ function Navbar() {
 
   useMount(() => {
     setCanvas(initCanvas());
+
   });
 
   const initCanvas = () => (
     new fabric.Canvas('mycanvas', {
       height: 1200,
       width: 800,
-      backgroundImage: "https://post.medicalnewstoday.com/wp-content/uploads/sites/3/2020/04/iStock-149046398-1-800x1200.jpg"
     })
   );
 
+  function setimage() {
+    fabric.Image.fromURL(
+      bgImage
+      ,
+      function (img) {
+        canvas.setBackgroundImage(img);
+        canvas.setWidth(img.getScaledWidth() + 100);
+        canvas.setHeight(img.getScaledHeight() + 100);
+        canvas.backgroundImage.center();
+        canvas.requestRenderAll();
+      },
+      { crossOrigin: "anonymous" }
+    );
+  }
   function updateStack() {
     var i = 1;
     while (stack[count + i] != null) {
@@ -108,6 +121,7 @@ function Navbar() {
 
   useEffect(() => {
     if (canvas) {
+      setimage();
       const handleClick = event => {
         if (!event.target) {
           setPopperstate(false);
@@ -145,7 +159,7 @@ function Navbar() {
   function createcircle() {
     canvas.isDrawingMode = false;
     var circle = new fabric.Circle({
-      radius: 45,
+      radius: 25,
       fill: '#0000FF',
       left: 100,
       top: -(canvas._offset.top - (document.querySelector('.navbar').getBoundingClientRect().y + 40)) + 100,
@@ -176,6 +190,8 @@ function Navbar() {
         return;
       }
       setZoomValue(canvas.getZoom() * 1.1);
+      canvas.setWidth((canvas.getWidth()) * 1.1)
+      canvas.setHeight((canvas.getHeight()) * 1.1)
       canvas.setZoom(canvas.getZoom() * 1.1);
 
     }
@@ -185,8 +201,10 @@ function Navbar() {
         return;
       }
       setZoomValue(canvas.getZoom() / 1.1);
-
       canvas.setZoom(canvas.getZoom() / 1.1);
+      canvas.setWidth(canvas.getWidth() / 1.1)
+      canvas.setHeight(canvas.getHeight() / 1.1)
+
     }
   }
 
@@ -303,9 +321,6 @@ function Navbar() {
 
         });
 
-        // textForEditing.onPaste:function(e){
-        //   console.log("pasting");
-        // }
 
         function adjustFontSize() {
           var newText;
@@ -339,33 +354,6 @@ function Navbar() {
           textForEditing.fontSize = newText.fontSize;
         }
 
-        function adjustFontSize1() {
-          // var totalwidth=((textForEditing.text).length)* 0.6 * textForEditing.fontSize;
-          // var lines=totalwidth/90;
-          // var approxHeight=lines*1.16*textForEditing.fontSize;
-          // textForEditing.fontSize *= approxHeight/90;
-
-          // let current = textForEditing.fontSize
-          // if (textForEditing.height > rectHeight) {
-          //   textForEditing.set("fontSize", textForEditing.fontSize - 1);
-          //   console.log("fjdsbhjabd",textForEditing.fontSize )
-          //   canvas.renderAll()
-          //   adjustFontSize1()
-          //   return
-          // } else {
-          //   if (current < 30) {
-          //     if (rectHeight - textForEditing.height < (current * textForEditing.lineHeight)) {
-          //       return
-          //     } else {
-          //       textForEditing.set("fontSize", 30);
-          //       canvas.renderAll()
-          //       adjustFontSize1()
-          //       return
-          //     }
-          //   }
-          //   return
-          // }
-        }
 
         textForEditing.on("changed", function (e) {
           if (!flag) {
@@ -391,13 +379,7 @@ function Navbar() {
             // else {
           }
           else {
-            // adjustFontSize();
 
-            //     // for (var i=0;i<20;i++){
-            //     //   adjustFontSize();
-            //     //   canvas.renderAll();
-            //     // }
-            // console.log("rect",rectHeight*0.75);
             while (textForEditing.height > rectHeight - 15 || textForEditing.height < (rectHeight / 2 + 10)) {
               textForEditing.fontSize =
                 (textForEditing.fontSize * (rectHeight - 15)) /
@@ -475,148 +457,6 @@ function Navbar() {
 
 
 
-
-  //   var textRectangle = new fabric.Rect({
-  //     width: 100,
-  //     height: 100,
-  //     fill: "#FBC970",
-  //     originX: "center",
-  //     originY: "center",
-  //   });
-  //   var text = new fabric.Textbox("Notes", {
-  //     originX: "center",
-  //     originY: "center",
-  //     textAlign: "center",
-  //     width: 90,
-  //     hasControls: false,
-  //     splitByGrapheme: true,
-  //     fontSize: 30,
-  //     lineHeight: 1,
-  //   });
-  //   var group = new fabric.Group([textRectangle, text], {
-  //     left: 100,
-  //     top: window.pageYOffset + 200,
-  //     originX: "center",
-  //     originY: "center",
-  //     type: "notes",
-  //   });
-
-  //   group.on("mousedblclick", () => {
-  //     group.selectable = false;
-  //     var scaling = group.getScaledWidth() / 100;
-  //     var textForEditing;
-  //     text.clone(function (clonedObj) {
-  //       clonedObj.set({
-  //         left: group.left,
-  //         top: group.top,
-  //         lockMovementY: true,
-  //         lockMovementX: true,
-  //         hasBorders: false,
-  //         scaleX: scaling,
-  //         scaleY: scaling,
-  //       });
-  //       textForEditing = clonedObj;
-  //     });
-  //     textForEditing.on("changed", function (e) {
-  //       console.log("before ", textForEditing.fontSize)
-  //       // textForEditing.fontSize=textRectangle.height/(canvas.getActiveObject()._textLines.length);
-  //       if (textForEditing.height < textRectangle.height - 15) {
-  //         console.log("increaseRatio ", (textForEditing.height + 1 + textForEditing.fontSize) / (textRectangle.height - 10))
-  //         var fontSize =
-  //           (textForEditing.fontSize * (textRectangle.height - 10)) /
-  //           (textForEditing.height + 1 + textForEditing.fontSize);
-  //         // if (textForEditing.height < (textRectangle.height - 10 - fontSize))
-  //         fontSize > 30
-  //           ? (textForEditing.fontSize = 30)
-  //           : (textForEditing.fontSize = fontSize);
-  //         console.log(fontSize)
-  //       }
-  //       if (textForEditing.height > textRectangle.height - 15) {
-  //         console.log("decreaseRatio ", ((textRectangle.height - 10) / (textForEditing.height + 1)))
-  //         textForEditing.fontSize =
-  //           (textForEditing.fontSize * (textRectangle.height - 10)) /
-  //           (textForEditing.height + 1);
-  //       }
-  //       console.log("after ", textForEditing.fontSize)
-  //       // else {
-  //       // }
-
-  //       // while (textForEditing.height < textRectangle.height-10) {
-  //       //   textForEditing.fontSize=textForEditing.fontSize+1;
-  //       //     canvas.renderAll();
-
-  //       // var diff = textForEditing.height - textRectangle.height;
-  //       // if (Math.abs(diff) >= 10) {
-  //       //   console.log("height",textForEditing.height);
-  //       //    if (diff <0) { 
-  //       //     // debugger;
-  //       //     if (textForEditing.height < textRectangle.height) {
-  //       //       textForEditing.fontSize *=  textForEditing.height/ (textRectangle.height + 1);
-  //       //     //  textForEditing.fontSize=textForEditing.fontSize + 0.3;
-  //       //     }
-  //       //    }
-  //       //    diff = textForEditing.height - textRectangle.height;
-  //       // }
-  //       //   // if (textForEditing.height>textRectangle.height - 23){
-  //       //   //   textForEditing.fontSize=textForEditing.height/
-  //       //   // }
-  //       //  }
-  //       // // else if (textForEditing.height < textRectangle.height - 20) {
-  //       // //   textForEditing.fontSize = textForEditing.fontSize + 2;
-  //       // // }
-
-
-  //       // //   textForEditing.fontSize = textForEditing.fontSize - 2;
-  //       // // if (textForEditing.height > textRectangle.height - 10) {
-  //       // //   textForEditing.fontSize = textForEditing.fontSize - 2;
-  //       // //   // console.log((textRectangle.height - textForEditing.height) / 100)
-  //       // // }
-  //       // // else {
-  //       //  textForEditing.fontSize = textForEditing.fontSize + ((textRectangle.height - 10 - textForEditing.height) / 20)
-
-  //       // // }
-
-  //       // //  if (textForEditing.height>textRectangle.height - 10){ 
-  //       // //     textForEditing.fontSize = textForEditing.fontSize-2;
-  //       // // }
-  //       // //  else if (textForEditing.height<=(textRectangle.height - 10)/3){
-  //       // //   textForEditing.fontSize = textForEditing.fontSize+2;
-  //       // // //  
-  //       // //  }
-  //       // // //     textForEditing.fontSize=textForEditing.fontSize+(185/textForEditing.height)+change;
-  //       // // // textForEditing.fontSize = 20;
-
-  //       // // // textForEditing.fontSize=(textRectangle.height/textForEditing.height)*4;
-  //       // //   console.log("font", textForEditing.fontSize)
-
-  //       // // }
-  //     });
-
-  //     text.visible = false;
-  //     group.addWithUpdate();
-  //     canvas.add(textForEditing);
-  //     canvas.setActiveObject(textForEditing);
-  //     textForEditing.enterEditing();
-  //     textForEditing.selectAll();
-  //     textForEditing.on("editing:exited", () => {
-
-  //       text.set({
-  //         text: textForEditing.text,
-  //         fontSize: textForEditing.fontSize,
-  //         visible: true,
-  //       });
-  //       group.addWithUpdate();
-  //       group.selectable = true;
-  //       canvas.setActiveObject(group);
-  //       canvas.remove(textForEditing);
-  //     });
-  //   });
-  //   canvas.add(group);
-  // };
-
-
-
-
   function createtext() {
     canvas.isDrawingMode = false;
     let text = new fabric.Textbox('TEXT',
@@ -631,11 +471,6 @@ function Navbar() {
 
   return (
     <div>
-      <div className='Container navbar1' id="check">HI </div>
-      <div className='Container navbar1' id="check">HI </div>
-
-      <div className='Container navbar1' id="check">HI </div>
-
       <div className='Container navbar'>
         <icons.ZoomOutIcon onClick={event => setZoomCanvas(event, "zoomout")} className="navbar-icons" id="Zoomout" />
         <icons.ZoomInIcon onClick={event => setZoomCanvas(event, "zoomin")} className="navbar-icons" id="ZoomIn" />
@@ -664,7 +499,7 @@ function Navbar() {
       </div>
       <div className="mycontainer" >
         <canvas id="mycanvas" />
-        {/* {popperstate && <Popper selected={selected} zoom={zoomValue} />} */}
+        {popperstate && <Popper selected={selected} zoom={zoomValue} />}
         {packageState && <Packages state={setPackageState} canvas={canvas} />}
       </div>
     </div>
